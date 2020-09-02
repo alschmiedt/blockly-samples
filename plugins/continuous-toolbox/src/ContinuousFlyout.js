@@ -38,6 +38,15 @@ export class ContinuousFlyout extends Blockly.VerticalFlyout {
      */
     this.scrollAnimationFraction = 0.3;
 
+    /**
+     * A recycle bin for blocks.
+     * @type {!Array.<!Blockly.Block>}
+     * @private
+     */
+    this.recycleBlocks_ = [];
+
+    this.recyclingEnabled_ = true;
+
     this.autoClose = false;
   }
 
@@ -92,5 +101,121 @@ export class ContinuousFlyout extends Blockly.VerticalFlyout {
     this.scrollbar.set(currentScrollPos + diff * this.scrollAnimationFraction);
 
     requestAnimationFrame(this.stepScrollAnimation.bind(this));
+  }
+
+  /**
+   * @override
+   */
+  show(flyoutDef) {
+    super.show(flyoutDef);
+    this.emptyRecycleBlocks_();
+  }
+
+  /**
+   * @override
+   */
+  createBlock_(blockXml) {
+    const id = blockXml.getAttribute('id') || blockXml.getAttribute('type');
+    const recycled = this.recycleBlocks_.findIndex(function(block) {
+      return block.id === id || block.type === id;
+    });
+
+    // If we found a recycled item, reuse the BlockSVG from last time.
+    // Otherwise, convert the XML block to a BlockSVG.
+    let curBlock;
+    if (recycled > -1) {
+      curBlock = this.recycleBlocks_.splice(recycled, 1)[0];
+    } else {
+      curBlock = Blockly.Xml.domToBlock(blockXml, this.workspace_);
+    }
+
+    if (curBlock.disabled) {
+      // Record blocks that were initially disabled.
+      // Do not enable these blocks as a result of capacity filtering.
+      this.permanentlyDisabled_.push(curBlock);
+    }
+    return curBlock;
+  }
+
+  blockIsRecyclable(block) {
+    // If the block needs to parse mutations, never recycle.
+    if (block.mutationToDom && block.domToMutation) {
+      return false;
+    }
+
+    for (let i = 0; i < block.inputList.length; i++) {
+      const input = block.inputList[i];
+      for (let j = 0; j < input.fieldRow.length; j++) {
+        const field = input.fieldRow[j];
+        // No variables.
+        if (field instanceof Blockly.FieldVariable) {
+          return false;
+        }
+        if (field instanceof Blockly.FieldDropdown) {
+          if (field.isOptionListDynamic()) {
+            return false;
+          }
+        }
+      }
+      // Check children.
+      if (input.connection) {
+        const child = input.connection.targetBlock();
+        if (child && !this.blockIsRecyclable(child)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  clearOldBlocks_() {
+    // Delete any blocks from a previous showing.
+    const oldBlocks = this.workspace_.getTopBlocks(false);
+    for (let i = 0, block; (block = oldBlocks[i]); i++) {
+      if (block.workspace == this.workspace_) {
+        if (this.recyclingEnabled_ &&
+          this.blockIsRecyclable(block)) {
+          this.recycleBlock_(block);
+        } else {
+          block.dispose(false, false);
+        }
+      }
+    }
+    // Delete any mats from a previous showing.
+    for (let j = 0; j < this.mats_.length; j++) {
+      const rect = this.mats_[j];
+      if (rect) {
+        Blockly.Tooltip.unbindMouseEvents(rect);
+        Blockly.utils.dom.removeNode(rect);
+      }
+    }
+    this.mats_.length = 0;
+    // Delete any buttons from a previous showing.
+    for (let i = 0, button; (button = this.buttons_[i]); i++) {
+      button.dispose();
+    }
+    this.buttons_.length = 0;
+
+    // Clear potential variables from the previous showing.
+    this.workspace_.getPotentialVariableMap().clear();
+  }
+
+  /**
+   * Empty out the recycled blocks, properly destroying everything.
+   * @private
+   */
+  emptyRecycleBlocks_() {
+    // Clean out the old recycle bin.
+    const oldBlocks = this.recycleBlocks_;
+    this.recycleBlocks_ = [];
+    for (let i = 0; i < oldBlocks.length; i++) {
+      oldBlocks[i].dispose(false, false);
+    }
+  }
+
+  recycleBlock_(block) {
+    const xy = block.getRelativeToSurfaceXY();
+    block.moveBy(-xy.x, -xy.y);
+    this.recycleBlocks_.push(block);
   }
 }

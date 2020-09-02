@@ -20,10 +20,8 @@ export class ContinuousToolbox extends Blockly.Toolbox {
   }
 
   /** @override */
-  init() {
-    super.init();
-
-    // Populate the flyout with all blocks and show it immediately.
+  renderContents_(toolboxDef) {
+    super.renderContents_(toolboxDef);
     this.flyout_.show(this.getInitialFlyoutContents());
     this.flyout_.recordScrollPositions();
   }

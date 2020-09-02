@@ -59,4 +59,4 @@ export class ContinuousCategory extends Blockly.ToolboxCategory {
 Blockly.registry.register(
     Blockly.registry.Type.TOOLBOX_ITEM,
     Blockly.ToolboxCategory.registrationName,
-    ContinuousCategory);
+    ContinuousCategory, true);
