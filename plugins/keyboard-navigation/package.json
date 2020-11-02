@@ -1,0 +1,60 @@
+{
+  "name": "blockly-plugin-keyboard-navigation",
+  "version": "0.20201029.0",
+  "description": "A Blockly plugin.",
+  "scripts": {
+    "audit:fix": "blockly-scripts auditFix",
+    "build": "blockly-scripts build",
+    "clean": "blockly-scripts clean",
+    "lint": "blockly-scripts lint",
+    "prepublishOnly": "npm run clean && npm run build",
+    "start": "blockly-scripts start"
+  },
+  "main": "./dist/index.js",
+  "module": "./src/index.js",
+  "unpkg": "./dist/index.js",
+  "author": "",
+  "keywords": [
+    "blockly",
+    "blockly-plugin",
+    "keyboard-navigation"
+  ],
+  "homepage": "https://github.com/alschmiedt/blockly-samples/tree/master/plugins/keyboard-navigation#readme",
+  "bugs": {
+    "url": "https://github.com/alschmiedt/blockly-samples/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alschmiedt/blockly-samples.git",
+    "directory": "plugins/keyboard-navigation"
+  },
+  "license": "Apache 2.0",
+  "directories": {
+    "dist": "dist",
+    "src": "src"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "devDependencies": {
+    "@blockly/dev-scripts": "^1.2.1",
+    "@blockly/dev-tools": "^2.0.5",
+    "blockly": "^3.20200924.3"
+  },
+  "peerDependencies": {
+    "blockly": ">=3"
+  },
+  "publishConfig": {},
+  "eslintConfig": {
+    "extends": "@blockly/eslint-config"
+  },
+  "engines": {
+    "node": ">=8.17.0"
+  },
+  "browserslist": [
+    "defaults",
+    "IE 11",
+    "IE_Mob 11"
+  ]
+}
