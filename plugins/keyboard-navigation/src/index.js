@@ -57,8 +57,22 @@ export class Navigation {
         new Blockly.Marker());
 
     workspace.addChangeListener((e) => this.workspaceChangeListener_(e));
+
+    Blockly.bindEventWithChecks_(
+      workspace.getInjectionDiv(), 'mouseup', workspace, this.handleUp);
+
     flyout.getWorkspace().addChangeListener(
         (e) => this.flyoutChangeListener_(e));
+  }
+
+  handleUp(e) {
+    if (e.shiftKey && this.keyboardAccessibilityMode) {
+      const screenCoord = new Blockly.utils.Coordinate(e.clientX, e.clientY);
+      const wsCoord = Blockly.utils.screenToWsCoordinates(this, screenCoord);
+      const wsNode = Blockly.ASTNode.createWorkspaceNode(this, wsCoord);
+      this.getCursor().setCurNode(wsNode);
+    }
+    // TODO: Why does this not bubble up?
   }
 
   /**
@@ -84,13 +98,14 @@ export class Navigation {
         }
       } else if (e.element === 'click') {
         if (workspaceState !== Constants.State.WORKSPACE) {
-          this.focusWorkspace_(workspace);
+          this.resetFlyout_(workspace, !!workspace.getToolbox());
+          this.setState(workspace, Constants.State.WORKSPACE);
         }
       } else if (e.element === 'category') {
         if (e.newValue && workspaceState !== Constants.State.TOOLBOX) {
           this.focusToolbox_(workspace);
         } else if (!e.newValue) {
-          this.resetFlyout_(workspace, true);
+          this.resetFlyout_(workspace, !!workspace.getToolbox());
           this.setState(workspace, Constants.State.WORKSPACE);
         }
       }
@@ -1351,6 +1366,7 @@ export class Navigation {
         if (workspace.keyboardAccessibilityMode &&
             !workspace.options.readOnly) {
           const curNode = workspace.getCursor().getCurNode();
+          // TODO: What do we do if a block is selected but the cursor is on the ws?
           if (curNode && curNode.getSourceBlock()) {
             const sourceBlock = curNode.getSourceBlock();
             return sourceBlock &&
