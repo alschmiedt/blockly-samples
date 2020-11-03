@@ -53,14 +53,12 @@ export class Navigation {
    */
   addWorkspace(workspace) {
     const flyout = workspace.getFlyout();
-    // TODO: Take this out of core.
-    workspace.markerManager_.registerMarker(Constants.MarkerName,
+    workspace.getMarkerManager().registerMarker(Constants.MarkerName,
         new Blockly.Marker());
 
     workspace.addChangeListener((e) => this.workspaceChangeListener_(e));
     flyout.getWorkspace().addChangeListener(
         (e) => this.flyoutChangeListener_(e));
-    // TODO: initialize the state.
   }
 
   /**
@@ -71,21 +69,48 @@ export class Navigation {
    */
   workspaceChangeListener_(e) {
     const workspace = Blockly.Workspace.getById(e.workspaceId);
+    const workspaceState = this.workspaceStates[workspace.id];
     if (workspace && workspace.keyboardAccessibilityMode) {
       if (e.type === Blockly.Events.DELETE) {
         console.log('Delete');
       } else if (e.type === Blockly.Events.CHANGE) {
-        console.log('BLOCK MUTATED');
-        this.moveCursorOnBlockMutation(workspace, e.blockId);
+        if (e.element === 'mutation') {
+          this.moveCursorOnBlockMutation(workspace, e.blockId);
+        } else if (e.element === 'field') {
+          const sourceBlock = workspace.getBlockById(e.blockId);
+          const field = sourceBlock.getField(e.name);
+          this.updateMarkers_(
+              sourceBlock, field.getCursorSvg(), field.getMarkerSvg());
+        }
       } else if (e.element === 'click') {
-        if (this.workspaceStates[workspace.id] !==
-            Constants.State.WORKSPACE) {
+        if (workspaceState !== Constants.State.WORKSPACE) {
           this.focusWorkspace_(workspace);
         }
-      } else if (e.element === 'category' &&
-          this.workspaceStates[workspace.id] !== Constants.State.TOOLBOX) {
-        this.focusToolbox_(workspace);
+      } else if (e.element === 'category') {
+        if (e.newValue && workspaceState !== Constants.State.TOOLBOX) {
+          this.focusToolbox_(workspace);
+        } else if (!e.newValue) {
+          this.resetFlyout_(workspace, true);
+          this.setState(workspace, Constants.State.WORKSPACE);
+        }
       }
+    }
+  }
+
+  /**
+   * Redraws any markers or cursors that are attached to the given block.
+   * @param {!Blockly.BlockSvg} block The block the field is attached to.
+   * @param {!Blockly.blockRendering.MarkerSvg} cursorSvg The svg of the cursor.
+   * @param {!Blockly.blockRendering.MarkerSvg} markerSvg The svg of the marker.
+   * @protected
+   */
+  updateMarkers_(block, cursorSvg, markerSvg) {
+    const workspace = /** @type {!Blockly.WorkspaceSvg} */ (block.workspace);
+    if (workspace.keyboardAccessibilityMode && cursorSvg) {
+      workspace.getCursor().draw();
+    }
+    if (workspace.keyboardAccessibilityMode && markerSvg) {
+      workspace.getMarker(Constants.MarkerName).draw();
     }
   }
 
@@ -96,30 +121,35 @@ export class Navigation {
    * @protected
    */
   flyoutChangeListener_(e) {
-    const workspace = Blockly.Workspace.getById(e.workspaceId);
-    const flyout = workspace.targetWorkspace.getFlyout();
+    const flyoutWorkspace = Blockly.Workspace.getById(e.workspaceId);
+    const mainWorkspace = flyoutWorkspace.targetWorkspace;
+    const flyout = mainWorkspace.getFlyout();
     if (flyout.autoClose) {
       return;
     }
 
-    // TODO: Should the keyboardAcessibilityMode be set on the flyout as well?
-    if (workspace && flyout.targetWorkspace.keyboardAccessibilityMode) {
+    if (mainWorkspace && mainWorkspace.keyboardAccessibilityMode) {
       // TODO: Should be using constants
       // TODO: it is weird I have to listen to both selected and click.
       if ((e.element === 'click' && e.newValue === 'block') ||
-          (e.element === 'selected')) {
+          (e.element === 'selected' && e.newValue)) {
         // TODO: weird that I have to listen to blockId and newValue are different.
-        const block = workspace.getBlockById(e.blockId || e.newValue);
-        // TODO: Look at this in core to see if there is any cleanup that can
-        //  happen.
-        workspace.getCursor().setCurNode(
+        const block = flyoutWorkspace.getBlockById(e.blockId || e.newValue);
+        flyoutWorkspace.getCursor().setCurNode(
             Blockly.ASTNode.createStackNode(block));
         // TODO: Is it weird that I am not using the focusFlyout?
-        this.workspaceStates[flyout.targetWorkspace.id] =
-            Constants.State.FLYOUT;
+        this.setState(mainWorkspace, Constants.State.FLYOUT);
       }
     }
-    // TODO: it deselects the block when the flyout bkgrd is clickedd.
+  }
+
+  /**
+   * Sets the state for the given workspace.
+   * @param {!Blockly.WorkspaceSvg} workspace The workspace to set the state on.
+   * @param {string} state The navigation state.
+   */
+  setState(workspace, state) {
+    this.workspaceStates[workspace.id] = state;
   }
 
   /**
@@ -161,21 +191,22 @@ export class Navigation {
    */
   focusToolbox_(workspace) {
     const toolbox = workspace.getToolbox();
-    if (toolbox) {
-      this.workspaceStates[workspace.id] = Constants.State.TOOLBOX;
-      this.resetFlyout_(workspace, false /* shouldHide */);
+    if (!toolbox) {
+      return;
+    }
+    this.setState(workspace, Constants.State.TOOLBOX);
+    this.resetFlyout_(workspace, false /* shouldHide */);
 
-      if (!this.getMarker_(workspace).getCurNode()) {
-        this.markAtCursor_(workspace);
-      }
-      if (!toolbox.getSelectedItem()) {
-        // Find the first item that is selectable.
-        const toolboxItems = toolbox.getToolboxItems();
-        for (let i = 0, toolboxItem; (toolboxItem = toolboxItems[i]); i++) {
-          if (toolboxItem.isSelectable()) {
-            toolbox.selectItemByPosition(i);
-            break;
-          }
+    if (!this.getMarker_(workspace).getCurNode()) {
+      this.markAtCursor_(workspace);
+    }
+    if (!toolbox.getSelectedItem()) {
+      // Find the first item that is selectable.
+      const toolboxItems = toolbox.getToolboxItems();
+      for (let i = 0, toolboxItem; (toolboxItem = toolboxItems[i]); i++) {
+        if (toolboxItem.isSelectable()) {
+          toolbox.selectItemByPosition(i);
+          break;
         }
       }
     }
@@ -188,10 +219,10 @@ export class Navigation {
    * @protected
    */
   focusFlyout_(workspace) {
-    let topBlock = null;
-    this.workspaceStates[workspace.id] = Constants.State.FLYOUT;
     const toolbox = workspace.getToolbox();
     const flyout = toolbox ? toolbox.getFlyout() : workspace.getFlyout();
+
+    this.setState(workspace, Constants.State.FLYOUT);
 
     if (!this.getMarker_(workspace).getCurNode()) {
       this.markAtCursor_(workspace);
@@ -200,8 +231,7 @@ export class Navigation {
     if (flyout && flyout.getWorkspace()) {
       const topBlocks = flyout.getWorkspace().getTopBlocks(true);
       if (topBlocks.length > 0) {
-        topBlock = topBlocks[0];
-        const astNode = Blockly.ASTNode.createStackNode(topBlock);
+        const astNode = Blockly.ASTNode.createStackNode(topBlocks[0]);
         this.getFlyoutCursor_(workspace).setCurNode(astNode);
       }
     }
@@ -225,7 +255,7 @@ export class Navigation {
     if (topBlocks.length > 0) {
       cursor.setCurNode(Blockly.ASTNode.createTopNode(topBlocks[0]));
     } else {
-      // TODO: Find the center of the visible workspace.
+      // TODO: Make this something that can be easily changed by the user.
       const wsCoord = new Blockly.utils.Coordinate(100, 100);
       const wsNode = Blockly.ASTNode.createWorkspaceNode(workspace, wsCoord);
       cursor.setCurNode(wsNode);
@@ -242,13 +272,9 @@ export class Navigation {
    * @protected
    */
   getFlyoutCursor_(workspace) {
-    let cursor = null;
-    // TODO: Remove the workspace.rendered piece here.
-    if (workspace.rendered) {
-      const toolbox = workspace.getToolbox();
-      const flyout = toolbox ? toolbox.getFlyout() : workspace.getFlyout();
-      cursor = flyout ? flyout.getWorkspace().getCursor() : null;
-    }
+    const flyout = workspace.getFlyout();
+    const cursor = flyout ? flyout.getWorkspace().getCursor() : null;
+
     return /** @type {Blockly.FlyoutCursor} */ (cursor);
   }
 
@@ -666,9 +692,7 @@ export class Navigation {
   /**
    * Removes the marker from its current location and hide it.
    * @param {!Blockly.WorkspaceSvg} workspace The workspace.
-   * TODO: Update this to be hideMarker?
-   * TODO: Go through and check if this should be private.
-   * @protected
+   * @private
    */
   removeMark_(workspace) {
     const marker = this.getMarker_(workspace);
@@ -755,7 +779,6 @@ export class Navigation {
    * @protected
    */
   moveWSCursor_(workspace, xDirection, yDirection) {
-    // TODO: Can we store the cursor on here?
     const cursor = workspace.getCursor();
     const curNode = workspace.getCursor().getCurNode();
 
@@ -1170,7 +1193,8 @@ export class Navigation {
         shiftW, wsMoveUpShortcut.name);
   }
 
-  /** Keyboard shortcut to move the cursor on the workspace down when in
+  /**
+   * Keyboard shortcut to move the cursor on the workspace down when in
    * keyboard navigation mode.
    */
   registerWorkspaceMoveDown() {
@@ -1191,6 +1215,211 @@ export class Navigation {
         Blockly.utils.KeyCodes.S, [Blockly.utils.KeyCodes.SHIFT]);
     Blockly.ShortcutRegistry.registry.addKeyMapping(
         shiftW, wsMoveDownShortcut.name);
+  }
+
+  /**
+   * Keyboard shortcut to copy the block the cursor is currently on.
+   * TODO: Add a method to test this.
+   */
+  registerCopy() {
+    /** @type {!Blockly.ShortcutRegistry.KeyboardShortcut} */
+    const copyShortcut = {
+      name: Constants.ShortcutNames.COPY,
+      preconditionFn: function(workspace) {
+        if (workspace.keyboardAccessibilityMode &&
+            !workspace.options.readOnly) {
+          const curNode = workspace.getCursor().getCurNode();
+          if (curNode && curNode.getSourceBlock()) {
+            const sourceBlock = curNode.getSourceBlock();
+            return !Blockly.Gesture.inProgress() &&
+                sourceBlock &&
+                sourceBlock.isDeletable() &&
+                sourceBlock.isMovable();
+          }
+        }
+        return false;
+      },
+      callback: (workspace) => {
+        const sourceBlock = workspace.getCursor().getCurNode().getSourceBlock();
+        Blockly.hideChaff();
+        Blockly.copy(sourceBlock);
+      },
+    };
+
+    Blockly.ShortcutRegistry.registry.register(copyShortcut);
+
+    const ctrlC = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.C, [Blockly.utils.KeyCodes.CTRL]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(ctrlC, copyShortcut.name, true);
+
+    const altC = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.C, [Blockly.utils.KeyCodes.ALT]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(altC, copyShortcut.name, true);
+
+    const metaC = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.C, [Blockly.utils.KeyCodes.META]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(metaC, copyShortcut.name, true);
+  }
+
+  /**
+   * Register shortcut to paste the copied block to the marked location.
+   */
+  registerPaste() {
+    /** @type {!Blockly.ShortcutRegistry.KeyboardShortcut} */
+    const pasteShortcut = {
+      name: Constants.ShortcutNames.PASTE,
+      preconditionFn: function(workspace) {
+        return workspace.keyboardAccessibilityMode &&
+            !workspace.options.readOnly &&
+            !Blockly.Gesture.inProgress();
+      },
+      callback: () => {
+        return this.paste_();
+      },
+    };
+
+    Blockly.ShortcutRegistry.registry.register(pasteShortcut);
+
+    const ctrlV = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.V, [Blockly.utils.KeyCodes.CTRL]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(ctrlV, pasteShortcut.name, true);
+
+    const altV = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.V, [Blockly.utils.KeyCodes.ALT]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(altV, pasteShortcut.name, true);
+
+    const metaV = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.V, [Blockly.utils.KeyCodes.META]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(metaV, pasteShortcut.name, true);
+  }
+
+  /**
+   * Keyboard shortcut to copy and delete the block the cursor is on using on
+   * ctrl+x, cmd+x, or alt+x.
+   */
+  registerCut() {
+    /** @type {!Blockly.ShortcutRegistry.KeyboardShortcut} */
+    const cutShortcut = {
+      name: Constants.ShortcutNames.CUT,
+      preconditionFn: function(workspace) {
+        if (workspace.keyboardAccessibilityMode &&
+            !workspace.options.readOnly) {
+          const curNode = workspace.getCursor().getCurNode();
+          if (curNode && curNode.getSourceBlock()) {
+            const sourceBlock = curNode.getSourceBlock();
+            return !Blockly.Gesture.inProgress() &&
+                sourceBlock &&
+                sourceBlock.isDeletable() &&
+                sourceBlock.isMovable() &&
+                !sourceBlock.workspace.isFlyout;
+          }
+        }
+        return false;
+      },
+      callback: function(workspace) {
+        const sourceBlock = workspace.getCursor().getCurNode().getSourceBlock();
+        Blockly.copy(sourceBlock);
+        Blockly.deleteBlock(sourceBlock);
+        return true;
+      },
+    };
+
+    Blockly.ShortcutRegistry.registry.register(cutShortcut);
+
+    const ctrlX = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.X, [Blockly.utils.KeyCodes.CTRL]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(ctrlX, cutShortcut.name, true);
+
+    const altX = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.X, [Blockly.utils.KeyCodes.ALT]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(altX, cutShortcut.name, true);
+
+    const metaX = Blockly.ShortcutRegistry.registry.createSerializedKey(
+        Blockly.utils.KeyCodes.X, [Blockly.utils.KeyCodes.META]);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(metaX, cutShortcut.name, true);
+  }
+
+  /**
+   * Registers shortcut to delete the block the cursor is on using delete or
+   * backspace.
+   */
+  registerDelete() {
+    /** @type {!Blockly.ShortcutRegistry.KeyboardShortcut} */
+    const deleteShortcut = {
+      name: Constants.ShortcutNames.DELETE,
+      preconditionFn: function(workspace) {
+        if (workspace.keyboardAccessibilityMode &&
+            !workspace.options.readOnly) {
+          const curNode = workspace.getCursor().getCurNode();
+          if (curNode && curNode.getSourceBlock()) {
+            const sourceBlock = curNode.getSourceBlock();
+            return sourceBlock &&
+                sourceBlock.isDeletable();
+          }
+        }
+        return false;
+      },
+      callback: function(workspace, e) {
+        const sourceBlock = workspace.getCursor().getCurNode().getSourceBlock();
+        // Delete or backspace.
+        // Stop the browser from going back to the previous page.
+        // Do this first to prevent an error in the delete code from resulting
+        // in data loss.
+        e.preventDefault();
+        // Don't delete while dragging.  Jeez.
+        if (Blockly.Gesture.inProgress()) {
+          return false;
+        }
+        Blockly.deleteBlock(sourceBlock);
+        return true;
+      },
+    };
+    Blockly.ShortcutRegistry.registry.register(deleteShortcut);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(
+        Blockly.utils.KeyCodes.DELETE, deleteShortcut.name, true);
+    Blockly.ShortcutRegistry.registry.addKeyMapping(
+        Blockly.utils.KeyCodes.BACKSPACE, deleteShortcut.name, true);
+  }
+
+  /**
+   * Pastes the coped block to the marked location.
+   * @return {boolean} True if the paste was sucessful, false otherwise.
+   * @protected
+   */
+  paste_() {
+    if (!Blockly.clipboardXml_) {
+      return false;
+    }
+    let isHandled = false;
+    // Pasting always pastes to the main workspace, even if the copy
+    // started in a flyout workspace.
+    let workspace = Blockly.clipboardSource_;
+    if (workspace.isFlyout) {
+      workspace = workspace.targetWorkspace;
+    }
+    if (Blockly.clipboardTypeCounts_ &&
+        workspace.isCapacityAvailable(Blockly.clipboardTypeCounts_)) {
+      Blockly.Events.setGroup(true);
+
+      // Handle paste for keyboard navigation
+      const markedNode = workspace.getMarker(Constants.MarkerName).getCurNode();
+      if (workspace.keyboardAccessibilityMode &&
+          markedNode && markedNode.isConnection()) {
+        const block = Blockly.Xml.domToBlock(Blockly.clipboardXml_, workspace);
+        // TODO: might need to disableEvents.
+        const markedLocation =
+          /** @type {!Blockly.RenderedConnection} */ (markedNode.getLocation());
+        isHandled = this.insertBlock(/** @type {!Blockly.BlockSvg} */ (block),
+            markedLocation);
+        if (isHandled) {
+          if (Blockly.Events.isEnabled() && !block.isShadow()) {
+            Blockly.Events.fire(new Blockly.Events.BlockCreate(block));
+          }
+        }
+      }
+      Blockly.Events.setGroup(false);
+    }
+    return isHandled;
   }
 
   /**
@@ -1215,6 +1444,12 @@ export class Navigation {
     this.registerWorkspaceMoveLeft();
     this.registerWorkspaceMoveUp();
     this.registerWorkspaceMoveRight();
+
+    // TODO: Check all of these. with tests. lots of tests.
+    this.registerCopy();
+    this.registerPaste();
+    this.registerCut();
+    this.registerDelete();
   }
 }
 
