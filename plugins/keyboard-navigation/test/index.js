@@ -11,6 +11,10 @@
 import * as Blockly from 'blockly';
 import {toolboxCategories, createPlayground} from '@blockly/dev-tools';
 import {defaultNavigation} from '../src/index.js';
+import '../src/on_shortcut';
+import '../src/gesture_overrides';
+
+// TODO: There should only be one import.
 /**
  * Create a workspace.
  * @param {HTMLElement} blocklyDiv The blockly container div.

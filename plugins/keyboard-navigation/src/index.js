@@ -6,10 +6,11 @@
 
 /**
  * @fileoverview A plugin for adding keyboard navigation support.
+ * @author aschmiedt@google.com (Abby Schmiedt)
  */
 
 import * as Constants from './constants';
-
+import {FlyoutCursor} from './flyout_cursor';
 
 /**
  * Class for keyboard navigation.
@@ -58,21 +59,12 @@ export class Navigation {
 
     workspace.addChangeListener((e) => this.workspaceChangeListener_(e));
 
-    Blockly.bindEventWithChecks_(
-      workspace.getInjectionDiv(), 'mouseup', workspace, this.handleUp);
-
-    flyout.getWorkspace().addChangeListener(
-        (e) => this.flyoutChangeListener_(e));
-  }
-
-  handleUp(e) {
-    if (e.shiftKey && this.keyboardAccessibilityMode) {
-      const screenCoord = new Blockly.utils.Coordinate(e.clientX, e.clientY);
-      const wsCoord = Blockly.utils.screenToWsCoordinates(this, screenCoord);
-      const wsNode = Blockly.ASTNode.createWorkspaceNode(this, wsCoord);
-      this.getCursor().setCurNode(wsNode);
+    if (flyout) {
+      const flyoutWorkspace = flyout.getWorkspace();
+      flyoutWorkspace.addChangeListener(
+          (e) => this.flyoutChangeListener_(e));
+      flyoutWorkspace.getMarkerManager().setCursor(new FlyoutCursor());
     }
-    // TODO: Why does this not bubble up?
   }
 
   /**
@@ -86,7 +78,7 @@ export class Navigation {
     const workspaceState = this.workspaceStates[workspace.id];
     if (workspace && workspace.keyboardAccessibilityMode) {
       if (e.type === Blockly.Events.DELETE) {
-        console.log('Delete');
+        this.deleteBlockOnDrag(e, workspace);
       } else if (e.type === Blockly.Events.CHANGE) {
         if (e.element === 'mutation') {
           this.moveCursorOnBlockMutation(workspace, e.blockId);
@@ -108,6 +100,21 @@ export class Navigation {
           this.resetFlyout_(workspace, !!workspace.getToolbox());
           this.setState(workspace, Constants.State.WORKSPACE);
         }
+      }
+    }
+  }
+
+  // TODO: Clean this up/See if I can combine this with the other delete.
+  deleteBlockOnDrag(e, workspace) {
+    const deletedBlockId = e.blockId;
+    const ids = e.ids;
+    const cursor = workspace.getCursor();
+    const curNode = workspace.getCursor().getCurNode();
+    if (curNode && curNode.getSourceBlock()) {
+      const sourceBlock = curNode.getSourceBlock();
+      if (sourceBlock.id = deletedBlockId || ids.indexOf(sourceBlock.id) > -1) {
+        cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(workspace,
+            new Blockly.utils.Coordinate(100, 100)));
       }
     }
   }
@@ -1375,7 +1382,7 @@ export class Navigation {
         }
         return false;
       },
-      callback: function(workspace, e) {
+      callback: (workspace, e) => {
         const sourceBlock = workspace.getCursor().getCurNode().getSourceBlock();
         // Delete or backspace.
         // Stop the browser from going back to the previous page.
@@ -1386,6 +1393,7 @@ export class Navigation {
         if (Blockly.Gesture.inProgress()) {
           return false;
         }
+        this.moveCursorOnBlockDelete(workspace, sourceBlock);
         Blockly.deleteBlock(sourceBlock);
         return true;
       },
@@ -1396,6 +1404,43 @@ export class Navigation {
     Blockly.ShortcutRegistry.registry.addKeyMapping(
         Blockly.utils.KeyCodes.BACKSPACE, deleteShortcut.name, true);
   }
+
+  /**
+   * Before a block is deleted move the cursor to the appropriate position.
+   * @param {!Blockly.BlockSvg} deletedBlock The block that is being deleted.
+   * TODO: CLean this up.
+   */
+  moveCursorOnBlockDelete(workspace, deletedBlock) {
+    if (!workspace) {
+      return;
+    }
+    const cursor = workspace.getCursor();
+    if (cursor) {
+      const curNode = cursor.getCurNode();
+      const block = curNode ? curNode.getSourceBlock() : null;
+
+      if (block === deletedBlock) {
+        // If the block has a parent move the cursor to their connection point.
+        if (block.getParent()) {
+          var topConnection = block.previousConnection || block.outputConnection;
+          if (topConnection) {
+            cursor.setCurNode(
+                Blockly.ASTNode.createConnectionNode(topConnection.targetConnection));
+          }
+        } else {
+          // If the block is by itself move the cursor to the workspace.
+          cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(block.workspace,
+              block.getRelativeToSurfaceXY()));
+        }
+      // If the cursor is on a block whose parent is being deleted, move the
+      // cursor to the workspace.
+      } else if (block && deletedBlock.getChildren(false).indexOf(block) > -1) {
+        cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(block.workspace,
+            block.getRelativeToSurfaceXY()));
+      }
+    }
+  };
+
 
   /**
    * Pastes the coped block to the marked location.

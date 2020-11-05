@@ -6,6 +6,7 @@
 
 /**
  * @fileoverview Constants for keyboard navigation.
+ * @author aschmiedt@google.com (Abby Schmiedt)
  */
 
 /**
