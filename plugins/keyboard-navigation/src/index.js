@@ -80,7 +80,8 @@ export class Navigation {
       if (e.type === Blockly.Events.DELETE) {
         this.deleteBlockOnDrag(e, workspace);
       } else if (e.type === Blockly.Events.CHANGE) {
-        if (e.element === 'mutation') {
+        // TODO: Is the change from mutation -> mutate really important to break things.
+        if (e.element === 'mutate') {
           this.moveCursorOnBlockMutation(workspace, e.blockId);
         } else if (e.element === 'field') {
           const sourceBlock = workspace.getBlockById(e.blockId);
@@ -88,15 +89,15 @@ export class Navigation {
           this.updateMarkers_(
               sourceBlock, field.getCursorSvg(), field.getMarkerSvg());
         }
-      } else if (e.element === 'click') {
+      } else if (e.type === Blockly.Events.CLICK) {
         if (workspaceState !== Constants.State.WORKSPACE) {
           this.resetFlyout_(workspace, !!workspace.getToolbox());
           this.setState(workspace, Constants.State.WORKSPACE);
         }
-      } else if (e.element === 'category') {
-        if (e.newValue && workspaceState !== Constants.State.TOOLBOX) {
+      } else if (e.type === Blockly.Events.TOOLBOX_ITEM_SELECT) {
+        if (e.newItem && workspaceState !== Constants.State.TOOLBOX) {
           this.focusToolbox_(workspace);
-        } else if (!e.newValue) {
+        } else if (!e.newItem) {
           this.resetFlyout_(workspace, !!workspace.getToolbox());
           this.setState(workspace, Constants.State.WORKSPACE);
         }
@@ -151,15 +152,10 @@ export class Navigation {
     }
 
     if (mainWorkspace && mainWorkspace.keyboardAccessibilityMode) {
-      // TODO: Should be using constants
-      // TODO: it is weird I have to listen to both selected and click.
-      if ((e.element === 'click' && e.newValue === 'block') ||
-          (e.element === 'selected' && e.newValue)) {
-        // TODO: weird that I have to listen to blockId and newValue are different.
-        const block = flyoutWorkspace.getBlockById(e.blockId || e.newValue);
+      if ((e.type === Blockly.Events.CLICK && e.targetType === 'block')) {
+        const block = flyoutWorkspace.getBlockById(e.blockId);
         flyoutWorkspace.getCursor().setCurNode(
             Blockly.ASTNode.createStackNode(block));
-        // TODO: Is it weird that I am not using the focusFlyout?
         this.setState(mainWorkspace, Constants.State.FLYOUT);
       }
     }
