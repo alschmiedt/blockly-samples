@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,23 +11,26 @@
  */
 'use strict';
 
+import * as Blockly from 'blockly/core';
 import * as Constants from './constants';
 
 /**
  * Class for a flyout cursor.
  * This controls how a user navigates blocks in the flyout.
+ * This cursor only navigates stacks of blocks.
  * @constructor
  * @extends {Blockly.Cursor}
  */
-export class FlyoutCursor extends Blockly.Cursor{
+export class FlyoutCursor extends Blockly.Cursor {
   /**
    * The constructor for the FlyoutCursor.
    */
   constructor() {
     super();
   }
+
   /**
-   * Find the next connection, field, or block.
+   * Find the next stack of blocks.
    * @return {Blockly.ASTNode} The next element, or null if the current node is
    *     not set or there is no next value.
    * @override
@@ -55,7 +58,7 @@ export class FlyoutCursor extends Blockly.Cursor{
   }
 
   /**
-   * Find the previous connection, field, or block.
+   * Find the previous stack of blocks.
    * @return {Blockly.ASTNode} The previous element, or null if the current node
    *     is not set or there is no previous value.
    * @override
@@ -83,11 +86,11 @@ export class FlyoutCursor extends Blockly.Cursor{
   }
 
   /**
-   * Handles the given action.
+   * Handles the given shortcut.
    * This is only triggered when keyboard navigation is enabled.
    * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
    *     to be handled.
-   * @return {boolean} True if the action has been handled, false otherwise.
+   * @return {boolean} True if the shortcut has been handled, false otherwise.
    * @override
    */
   onBlocklyAction(shortcut) {

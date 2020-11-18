@@ -10,9 +10,10 @@
 
 import * as Blockly from 'blockly';
 import {toolboxCategories, createPlayground} from '@blockly/dev-tools';
-import {defaultNavigation} from '../src/index.js';
+import {defaultRegistration} from '../src/index';
 import '../src/on_shortcut';
 import '../src/gesture_overrides';
+
 
 // TODO: There should only be one import.
 /**
@@ -23,7 +24,7 @@ import '../src/gesture_overrides';
  */
 function createWorkspace(blocklyDiv, options) {
   const workspace = Blockly.inject(blocklyDiv, options);
-  defaultNavigation.addWorkspace(workspace);
+  defaultRegistration.addWorkspace(workspace);
   return workspace;
 }
 

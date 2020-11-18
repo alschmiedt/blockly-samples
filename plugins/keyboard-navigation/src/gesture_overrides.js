@@ -8,15 +8,20 @@
  * @fileoverview Overrides methods on Gesture in order to allow a user to shift
  * click on a workspace when in keyboard accessibility mode. This is temporary
  * until we can look into creating a way to override Blockly.Gesture in core.
- * // TODO: Add a TODO with an issue.
+ * TODO: Add a TODO with an issue.
  * @author aschmiedt@google.com (Abby Schmiedt)
  */
 
 const oldDoWorkspaceClick = Blockly.Gesture.prototype.doWorkspaceClick_;
 
+/**
+ * Execute a workspace click. When in accessibility mode shift clicking will
+ * move the cursor.
+ * @param {!Event} e A mouse up or touch end event.
+ * @override
+ */
 Blockly.Gesture.prototype.doWorkspaceClick_ = function(e) {
   const ws = this.creatorWorkspace_;
-  // TODO: This seems like bad juju
   oldDoWorkspaceClick.bind(this)(e);
   if (e.shiftKey && ws.keyboardAccessibilityMode) {
     const screenCoord = new Blockly.utils.Coordinate(e.clientX, e.clientY);
@@ -27,6 +32,12 @@ Blockly.Gesture.prototype.doWorkspaceClick_ = function(e) {
 };
 
 const oldDoBlockClick = Blockly.Gesture.prototype.doBlockClick_;
+
+/**
+ * Execute a block click. When in accessibility mode move the cursor to the
+ * block.
+ * @override
+ */
 Blockly.Gesture.prototype.doBlockClick_ = function(e) {
   oldDoBlockClick.bind(this)(e);
   if (!this.targetBlock_.isInFlyout && this.mostRecentEvent_.shiftKey &&
@@ -35,4 +46,3 @@ Blockly.Gesture.prototype.doBlockClick_ = function(e) {
         Blockly.ASTNode.createTopNode(this.targetBlock_));
   }
 };
-

@@ -11,6 +11,7 @@
 
 /**
  * Object holding possible states for navigation.
+ * TODO: Where does this go?
  * @enum {string}
  */
 export const State = {
@@ -46,12 +47,3 @@ export const ShortcutNames = {
   MOVE_WS_CURSOR_LEFT: 'move workspace cursor left',
   MOVE_WS_CURSOR_RIGHT: 'move workspace cursor right',
 };
-
-export const MarkerName = 'local_marker_1';
-
-/**
- * The distance to move the cursor on the workspace.
- * @type {number}
- * @const
- */
-export const WS_MOVE_DISTANCE = 40;
