@@ -73,11 +73,22 @@ export class Register {
       callback: (workspace, e, action) => {
         const flyout = workspace.getFlyout();
         const toolbox = workspace.getToolbox();
+        let isHandled = false;
         switch (this.navigation_.workspaceStates[workspace.id]) {
           case Constants.State.WORKSPACE:
-            return workspace.getCursor().onBlocklyAction(action);
+            isHandled = this.checkField_(workspace, action);
+            if (!isHandled) {
+              workspace.getCursor().prev();
+              isHandled = true;
+            }
+            return isHandled;
           case Constants.State.FLYOUT:
-            return !!(flyout && flyout.onBlocklyAction(action));
+            isHandled = this.checkField_(workspace, action);
+            if (!isHandled) {
+              flyout.workspace.getCursor().prev();
+              isHandled = true;
+            }
+            return isHandled;
           case Constants.State.TOOLBOX:
             return toolbox && typeof toolbox.onBlocklyAction == 'function' ?
                 toolbox.onBlocklyAction(action) : false;
@@ -90,6 +101,28 @@ export class Register {
     Blockly.ShortcutRegistry.registry.register(previousShortcut);
     Blockly.ShortcutRegistry.registry.addKeyMapping(
         Blockly.utils.KeyCodes.W, previousShortcut.name);
+  }
+
+  /**
+   * Gives the cursor to the field to handle if the cursor is on a field.
+   * @param {!Blockly.WorkspaceSvg} workspace The workspace to check.
+   * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} action The shortcut to
+   *     give to the field.
+   * @return {boolean} True if the action was handled by the field, false
+   *     otherwise.
+   * TODO: Fix this function name
+   */
+  checkField_(workspace, action) {
+    const cursor = workspace.getCursor();
+    if (!cursor || !cursor.getCurNode()) {
+      return;
+    }
+    const curNode = cursor.getCurNode();
+    if (curNode.getType() === Blockly.ASTNode.types.FIELD) {
+      return (/** @type {!Blockly.Field} */ (curNode.getLocation()))
+          .onBlocklyAction(action);
+    }
+    return false;
   }
 
   /**
@@ -132,9 +165,15 @@ export class Register {
       },
       callback: (workspace, e, action) => {
         const toolbox = workspace.getToolbox();
+        let isHandled = false;
         switch (this.navigation_.workspaceStates[workspace.id]) {
           case Constants.State.WORKSPACE:
-            return workspace.getCursor().onBlocklyAction(action);
+            isHandled = this.checkField_(workspace, action);
+            if (!isHandled) {
+              workspace.getCursor().out();
+              isHandled = true;
+            }
+            return isHandled;
           case Constants.State.FLYOUT:
             this.navigation_.focusToolbox(workspace);
             return true;
@@ -167,11 +206,22 @@ export class Register {
       callback: (workspace, e, action) => {
         const toolbox = workspace.getToolbox();
         const flyout = workspace.getFlyout();
+        let isHandled = false;
         switch (this.navigation_.workspaceStates[workspace.id]) {
           case Constants.State.WORKSPACE:
-            return workspace.getCursor().onBlocklyAction(action);
+            isHandled = this.checkField_(workspace, action);
+            if (!isHandled) {
+              workspace.getCursor().next();
+              isHandled = true;
+            }
+            return isHandled;
           case Constants.State.FLYOUT:
-            return !!(flyout && flyout.onBlocklyAction(action));
+            isHandled = this.checkField_(workspace, action);
+            if (!isHandled) {
+              flyout.workspace.getCursor().next();
+              isHandled = true;
+            }
+            return isHandled;
           case Constants.State.TOOLBOX:
             return toolbox && typeof toolbox.onBlocklyAction == 'function' ?
                 toolbox.onBlocklyAction(action) : false;
@@ -203,7 +253,12 @@ export class Register {
         let isHandled = false;
         switch (this.navigation_.workspaceStates[workspace.id]) {
           case Constants.State.WORKSPACE:
-            return workspace.getCursor().onBlocklyAction(action);
+            isHandled = this.checkField_(workspace, action);
+            if (!isHandled) {
+              workspace.getCursor().in();
+              isHandled = true;
+            }
+            return isHandled;
           case Constants.State.TOOLBOX:
             isHandled = toolbox &&
               typeof toolbox.onBlocklyAction == 'function' ?

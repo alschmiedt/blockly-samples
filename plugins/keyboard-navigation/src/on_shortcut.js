@@ -34,9 +34,7 @@ export class AddShortcutHandlers {
   addShortcutHandlers() {
     this.addFieldColourShortcutHandlers();
     this.addFieldDropdownShortcutHandlers();
-    this.addCursorShortcutHandler();
     this.addToolboxShortcutHandler();
-    this.addFlyoutShortcutHandler();
   }
 
   /**
@@ -113,45 +111,6 @@ export class AddShortcutHandlers {
   }
 
   /**
-   * Adds onBlocklyAction method to the cursor.
-   */
-  addCursorShortcutHandler() {
-    /**
-     * Handles the given action.
-     * This is only triggered when keyboard navigation is enabled.
-     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut to
-     *     be handled.
-     * @return {boolean} True if the action has been handled, false otherwise.
-     * TODO: Should this be shortcut or action.
-     */
-    Blockly.Cursor.prototype.onBlocklyAction = function(shortcut) {
-      // If we are on a field give it the option to handle the action
-      if (this.getCurNode() &&
-          this.getCurNode().getType() === Blockly.ASTNode.types.FIELD &&
-          (/** @type {!Blockly.Field} */ (this.getCurNode().getLocation()))
-              .onBlocklyAction(shortcut)) {
-        return true;
-      }
-      switch (shortcut.name) {
-        case Blockly.navigation.actionNames.PREVIOUS:
-          this.prev();
-          return true;
-        case Blockly.navigation.actionNames.OUT:
-          this.out();
-          return true;
-        case Blockly.navigation.actionNames.NEXT:
-          this.next();
-          return true;
-        case Blockly.navigation.actionNames.IN:
-          this.in();
-          return true;
-        default:
-          return false;
-      }
-    };
-  }
-
-  /**
    * Adds onBlocklyAction method to the toolbox.
    * No-op if the default toolbox does not exist or if the toolbox already has and
    * onBlocklyAction method.
@@ -184,28 +143,6 @@ export class AddShortcutHandlers {
         default:
           return false;
       }
-    };
-  }
-
-  /**
-   * Adds onBlocklyAction method to the flyout.
-   * No-op if the flyout is not registered or if the flyout already has and
-   * onBlocklyAction method.
-   */
-  addFlyoutShortcutHandler() {
-    if (!Blockly.Flyout || Blockly.Flyout.prototype.onBlocklyAction) {
-      return;
-    }
-    /**
-     * Handles the given action.
-     * This is only triggered when keyboard accessibility mode is enabled.
-     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The action to be
-     *     handled.
-     * @return {boolean} True if the flyout handled the action, false otherwise.
-     * @package
-     */
-    Blockly.Flyout.prototype.onBlocklyAction = function(shortcut) {
-      return this.workspace_.getCursor().onBlocklyAction(shortcut);
     };
   }
 }
