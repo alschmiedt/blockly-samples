@@ -48,10 +48,11 @@ export class AddShortcutHandlers {
     /**
      * Handles the given action.
      * This is only triggered when keyboard accessibility mode is enabled.
-     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut to
-     * be handled.
+     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
+     *     to be handled.
      * @return {boolean} True if the field handled the action, false otherwise.
-     * TODO: Need to check if Blockly.FieldColour and the rest of the fields exist, before doing this.
+     * TODO: Need to check if Blockly.FieldColour and the rest of the fields
+     * exist, before doing this.
      * @package
      */
     Blockly.FieldColour.prototype.onBlocklyAction = function(shortcut) {
@@ -88,8 +89,8 @@ export class AddShortcutHandlers {
     /**
      * Handles the given action.
      * This is only triggered when keyboard accessibility mode is enabled.
-     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut to
-     *     be handled.
+     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
+     *     to be handled.
      * @return {boolean} True if the field handled the action, false otherwise.
      * @package
      */
@@ -112,8 +113,8 @@ export class AddShortcutHandlers {
 
   /**
    * Adds onBlocklyAction method to the toolbox.
-   * No-op if the default toolbox does not exist or if the toolbox already has and
-   * onBlocklyAction method.
+   * No-op if the default toolbox does not exist or if the toolbox already has
+   * and onBlocklyAction method.
    */
   addToolboxShortcutHandler() {
     if (!Blockly.Toolbox || Blockly.Toolbox.prototype.onBlocklyAction) {
@@ -122,8 +123,8 @@ export class AddShortcutHandlers {
     /**
      * Handles the given Blockly action on a toolbox.
      * This is only triggered when keyboard accessibility mode is enabled.
-     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut to
-     *     be handled.
+     * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
+     *     to be handled.
      * @return {boolean} True if the field handled the action, false otherwise.
      * @package
      */

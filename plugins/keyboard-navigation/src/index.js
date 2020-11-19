@@ -10,10 +10,11 @@
  * @author aschmiedt@google.com (Abby Schmiedt)
  */
 
-import {AddShortcutHandlers} from './on_shortcut';
+import {AddShortcutHandlers} from './add_shortcut_handlers';
 import * as Blockly from 'blockly/core';
 import * as Constants from './constants';
 import {Navigation} from './navigation';
+import '../src/gesture_monkey_patch';
 
 /**
  * Class for registering shortcuts for keyboard navigation.
@@ -85,7 +86,7 @@ export class Register {
           case Constants.State.FLYOUT:
             isHandled = this.checkField_(workspace, action);
             if (!isHandled) {
-              flyout.workspace.getCursor().prev();
+              flyout.getWorkspace().getCursor().prev();
               isHandled = true;
             }
             return isHandled;
@@ -218,7 +219,7 @@ export class Register {
           case Constants.State.FLYOUT:
             isHandled = this.checkField_(workspace, action);
             if (!isHandled) {
-              flyout.workspace.getCursor().next();
+              flyout.getWorkspace().getCursor().next();
               isHandled = true;
             }
             return isHandled;

@@ -11,9 +11,6 @@
 import * as Blockly from 'blockly';
 import {toolboxCategories, createPlayground} from '@blockly/dev-tools';
 import {defaultRegistration} from '../src/index';
-import '../src/on_shortcut';
-import '../src/gesture_overrides';
-
 
 // TODO: There should only be one import.
 /**
