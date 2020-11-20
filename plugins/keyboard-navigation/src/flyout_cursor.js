@@ -109,7 +109,6 @@ export class FlyoutCursor extends Blockly.Cursor {
 
 /**
  * Name used for registering a flyout cursor.
- * TODO: Does this belong here or does it belong in constants?
  * @const {string}
  */
 export const registrationName = 'FlyoutCursor';

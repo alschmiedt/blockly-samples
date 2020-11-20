@@ -714,6 +714,10 @@ export class Register {
         Blockly.utils.KeyCodes.BACKSPACE, deleteShortcut.name, true);
   }
 
+  dispose() {
+    // TODO: Unregister everythign that was registered here.
+  }
+
   /**
    * Registers all default keyboard shortcut items for keyboard navigation. This
    * should be called once per instance of KeyboardShortcutRegistry.

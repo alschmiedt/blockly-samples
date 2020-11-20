@@ -12,8 +12,7 @@
 
 import * as Blockly from 'blockly/core';
 import * as Constants from './constants';
-import {registrationName as FlyoutCursorRegistrationName} from './flyout_cursor';
-import {registrationType as FlyoutCursorRegistrationType} from './flyout_cursor';
+import {registrationName, registrationType} from './flyout_cursor';
 
 /**
  * Class that holds all methods necessary for keyboard navigation to work.
@@ -89,8 +88,9 @@ export class Navigation {
       const flyoutWorkspace = flyout.getWorkspace();
       flyoutWorkspace.addChangeListener(
           (e) => this.flyoutChangeListener_(e));
+      // TODO: Fix registrationType --> CursorRegistrationType
       const FlyoutCursorClass = Blockly.registry.getClass(
-          FlyoutCursorRegistrationType, FlyoutCursorRegistrationName);
+          registrationType, registrationName);
       flyoutWorkspace.getMarkerManager().setCursor(new FlyoutCursorClass());
     }
   }
@@ -319,6 +319,7 @@ export class Navigation {
    * @package
    */
   focusToolbox(workspace) {
+    // TODO: Need to add checks here or level above for if the workspace is null.
     const toolbox = workspace.getToolbox();
     if (!toolbox) {
       return;
@@ -326,10 +327,9 @@ export class Navigation {
     this.setState(workspace, Constants.State.TOOLBOX);
     this.resetFlyout_(workspace, false /* shouldHide */);
 
-    if (!Blockly.navigation.getMarker().getCurNode()) {
+    if (!this.getMarker_(workspace).getCurNode()) {
       this.markAtCursor_(workspace);
     }
-
 
     if (!toolbox.getSelectedItem()) {
       // Find the first item that is selectable.
@@ -354,7 +354,7 @@ export class Navigation {
 
     this.setState(workspace, Constants.State.FLYOUT);
 
-    if (!Blockly.navigation.getMarker().getCurNode()) {
+    if (!this.getMarker_(workspace).getCurNode()) {
       this.markAtCursor_(workspace);
     }
 
@@ -988,5 +988,3 @@ export class Navigation {
     return isHandled;
   }
 }
-
-export const defaultNavigation = new Navigation();
