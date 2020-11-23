@@ -455,11 +455,8 @@ export class Navigation {
    */
   insertFromFlyout(workspace) {
     const newBlock = this.createNewBlock_(workspace);
-    // Sets the cursor to the new block, so we can use modify to connect the
-    // new block with the marked connection.
-    workspace.getCursor().setCurNode(
-        Blockly.ASTNode.createBlockNode(newBlock));
-    if (!this.modify(workspace)) {
+    const markerNode = this.getMarker_(workspace).getCurNode();
+    if (!this.modify(workspace, markerNode, Blockly.ASTNode.createBlockNode(newBlock))) {
       this.warn_(
           'Something went wrong while inserting a block from the flyout.');
     }
@@ -517,17 +514,16 @@ export class Navigation {
   }
 
   /**
-   * Tries to connect the current marker and cursor location. Warns the user if
-   * the two locations can not be connected.
+   * Tries to connect the given marker and cursor node.
    * @param {!Blockly.WorkspaceSvg} workspace The main workspace.
+   * @param {!Blockly.ASTNode} markerNode The node to try to connect to.
+   * @param {!Blockly.ASTNode} cursorNode The node to connect to the markerNode.
    * @return {boolean} True if the key was handled; false if something went
    *     wrong.
    * @package
    */
-  modify(workspace) {
-    const markerNode = this.getMarker_(workspace).getCurNode();
-    const cursorNode = workspace.getCursor().getCurNode();
-    if (!this.modifyWarn_(workspace)) {
+  modify(workspace, markerNode, cursorNode) {
+    if (!this.modifyWarn_(markerNode, cursorNode)) {
       return false;
     }
 
@@ -555,22 +551,19 @@ export class Navigation {
       return this.moveBlockToWorkspace_(
           /** @type {Blockly.BlockSvg} */ (block), markerNode);
     }
-    this.warn_('Unexpected state in modify.');
+    this.warn_('Unexpected state in setWorkspaceState.');
     return false;
   }
 
   /**
-   * Warns the user if the cursor or marker is on a type that can not be
-   * connected.
-   * @param {!Blockly.WorkspaceSvg} workspace The workspace.
+   * Warns the user if the given cursor or marker node can not be connected.
+   * @param {!Blockly.ASTNode} markerNode The node to try to connect to.
+   * @param {!Blockly.ASTNode} cursorNode The node to connect to the markerNode.
    * @return {boolean} True if the marker and cursor are valid types, false
    *     otherwise.
    * @protected
    */
-  modifyWarn_(workspace) {
-    const markerNode = this.getMarker_(workspace).getCurNode();
-    const cursorNode = workspace.getCursor().getCurNode();
-
+  modifyWarn_(markerNode, cursorNode) {
     if (!markerNode) {
       this.warn_('Cannot insert with no marked node.');
       return false;
@@ -1008,27 +1001,26 @@ export class Navigation {
     if (!Blockly.clipboardXml_) {
       return false;
     }
-    // Pasting always pastes to the main workspace, even if the copy
-    // started in a flyout workspace.
     let workspace = Blockly.clipboardSource_;
     let isHandled = false;
 
+    // Pasting always pastes to the main workspace, even if the copy
+    // started in a flyout workspace.
     if (workspace.isFlyout) {
       workspace = workspace.targetWorkspace;
     }
+
+    // Handles paste for keyboard navigation.
     if (Blockly.clipboardTypeCounts_ &&
         workspace.isCapacityAvailable(Blockly.clipboardTypeCounts_)) {
       Blockly.Events.setGroup(true);
       const block = Blockly.Xml.domToBlock(Blockly.clipboardXml_, workspace);
-      isHandled = this.paste_(workspace, block);
-      if (isHandled) {
-        if (Blockly.Events.isEnabled() && !block.isShadow()) {
-          Blockly.Events.fire(new Blockly.Events.BlockCreate(block));
-        }
+      this.paste_(workspace, block);
+      if (Blockly.Events.isEnabled() && !block.isShadow()) {
+        Blockly.Events.fire(new Blockly.Events.BlockCreate(block));
       }
-
-      // Handle paste for keyboard navigation
       Blockly.Events.setGroup(false);
+      isHandled = true;
     }
     return isHandled;
   }
@@ -1045,12 +1037,9 @@ export class Navigation {
   paste_(workspace, block) {
     let isHandled = false;
     const markedNode = workspace.getMarker(this.MARKER_NAME).getCurNode();
-    if (markedNode && markedNode.isConnection() || markedNode.getType() === Blockly.ASTNode.Types.WORKSPACE) {
+    if (markedNode) {
       // TODO: might need to disableEvents.
-      const markedLocation =
-        /** @type {!Blockly.RenderedConnection} */ (markedNode.getLocation());
-      isHandled = this.insertBlock_(/** @type {!Blockly.BlockSvg} */ (block),
-          markedLocation);
+      isHandled = this.modify(workspace, markedNode, Blockly.ASTNode.createBlockNode(block));
     }
     return isHandled;
   }
