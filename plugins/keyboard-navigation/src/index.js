@@ -43,7 +43,12 @@ export class Register {
      * @protected
      */
     this.shortcutHandler_ = optShortcutHandler || new AddShortcutHandlers();
+  }
 
+  /**
+   * Registers the default keyboard shortcuts for keyboard navigation.
+   */
+  init() {
     this.registerDefaults_();
   }
 
