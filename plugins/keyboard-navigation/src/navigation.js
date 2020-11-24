@@ -75,6 +75,28 @@ export class Navigation {
      * @public
      */
     this.WS_COORDINATE_ON_DELETE = new Blockly.utils.Coordinate(100, 100);
+
+    /**
+     * Wrapper for method that deals with workspace changes.
+     * Used for removing change listener.
+     * @type {Function}
+     * TODO: Should this be public?
+     */
+    this.wsChangeWrapper = this.workspaceChangeListener_.bind(this);
+
+    /**
+     * Wrapper for method that deals with flyout changes.
+     * Used for removing change listener.
+     * TODO: Should this be public?
+     * @type {Function}
+     */
+    this.flyoutChangeWrapper = this.flyoutChangeListener_.bind(this);
+
+    /**
+     * The list of registered workspaces.
+     * Used when removing change listeners in dispose.
+     */
+    this.workspaces = [];
   }
 
   /**
@@ -86,16 +108,15 @@ export class Navigation {
    * @package
    */
   addWorkspace(workspace) {
+    this.workspaces.push(workspace);
     const flyout = workspace.getFlyout();
     workspace.getMarkerManager().registerMarker(this.MARKER_NAME,
         new Blockly.Marker());
-
-    workspace.addChangeListener((e) => this.workspaceChangeListener_(e));
+    workspace.addChangeListener(this.wsChangeListener);
 
     if (flyout) {
       const flyoutWorkspace = flyout.getWorkspace();
-      flyoutWorkspace.addChangeListener(
-          (e) => this.flyoutChangeListener_(e));
+      flyoutWorkspace.addChangeListener(this.flyoutChangeListener);
       // TODO: Fix registrationType --> CursorRegistrationType
       const FlyoutCursorClass = Blockly.registry.getClass(
           registrationType, registrationName);
@@ -1042,5 +1063,18 @@ export class Navigation {
       isHandled = this.modify(workspace, markedNode, Blockly.ASTNode.createBlockNode(block));
     }
     return isHandled;
+  }
+
+  /**
+   * Removes the change listeners on all registered workspaces.
+   */
+  dispose() {
+    for (const workspace of this.workspaces) {
+      workspace.removeChangeListener(this.wsChangeListener);
+      const flyout = workspace.getFlyout();
+      if (flyout) {
+        flyout.getWorkspace().removeChangeListener(this.flyoutChangeListener);
+      }
+    }
   }
 }

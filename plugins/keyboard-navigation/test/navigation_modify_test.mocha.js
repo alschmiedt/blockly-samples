@@ -32,11 +32,15 @@ suite('Insert/Modify', function() {
 
   /**
    * Check that modify failed.
+   * @param {Navigation} navigation The class under test.
+   * @param {Blockly.WorkspaceSvg} workspace The main workspace.
+   * @param {!Blockly.ASTNode} markerNode The node to try to connect to.
+   * @param {!Blockly.ASTNode} cursorNode The node to connect to the markerNode.
    */
-  function assertModifyFails() {
+  function assertModifyFails(navigation, workspace, markerNode, cursorNode) {
     let modifyResult;
     const warnings = captureWarnings(function() {
-      modifyResult = Blockly.navigation.modify_();
+      modifyResult = navigation.modify(workspace, markerNode, cursorNode);
     });
     assert.isFalse(modifyResult);
     assert.equal(warnings.length, 1,
@@ -115,8 +119,7 @@ suite('Insert/Modify', function() {
     this.row_block_2 = this.workspace.getBlockById('row_block_2');
     this.statement_block_1 = this.workspace.getBlockById('statement_block_1');
     this.statement_block_2 = this.workspace.getBlockById('statement_block_2');
-
-    Blockly.navigation.enableKeyboardAccessibility();
+    this.navigation.enableKeyboardAccessibility(this.workspace);
   });
 
   teardown(function() {
@@ -130,125 +133,105 @@ suite('Insert/Modify', function() {
     // TODO: Marked connection or cursor connection is already connected.
     suite('Marker on next', function() {
       setup(function() {
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_1.nextConnection));
+        this.markerNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_1.nextConnection);
       });
       test('Cursor on workspace', function() {
-        this.workspace.getCursor().setCurNode(
+        const cursorNode =
             Blockly.ASTNode.createWorkspaceNode(this.workspace,
-                new Blockly.utils.Coordinate(0, 0)));
-        assertModifyFails();
+                new Blockly.utils.Coordinate(0, 0));
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on compatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_2.previousConnection));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_2.previousConnection);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.stack_block_1.getNextBlock().id, 'stack_block_2');
       });
       test('Cursor on incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_2.nextConnection));
         // Connect method will try to find a way to connect blocks with
         // incompatible types.
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_2.nextConnection);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.stack_block_1.getNextBlock(), this.stack_block_2);
       });
       test('Cursor on really incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_1.outputConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_1.outputConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
         assert.isNull(this.stack_block_1.getNextBlock());
       });
       test('Cursor on block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.stack_block_2));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.stack_block_2);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.stack_block_1.getNextBlock().id, 'stack_block_2');
       });
     });
 
     suite('Marker on previous', function() {
       setup(function() {
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_1.previousConnection));
+        this.markerNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_1.previousConnection);
       });
       test('Cursor on compatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_2.nextConnection));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_2.nextConnection);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.stack_block_1.getPreviousBlock().id, 'stack_block_2');
       });
       test('Cursor on incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_2.previousConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_2.previousConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
         assert.isNull(this.stack_block_1.getPreviousBlock());
       });
       test('Cursor on really incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_1.outputConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_1.outputConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
         assert.isNull(this.stack_block_1.getNextBlock());
       });
       test('Cursor on block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.stack_block_2));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.stack_block_2);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.stack_block_1.getPreviousBlock().id, 'stack_block_2');
       });
       test('Cursor on incompatible block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.row_block_1));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.row_block_1);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
         assert.isNull(this.stack_block_1.getPreviousBlock());
       });
     });
 
     suite('Marker on value input', function() {
       setup(function() {
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_1.inputList[0].connection));
+        this.markerNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_1.inputList[0].connection);
       });
       test('Cursor on compatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_2.outputConnection));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_2.outputConnection);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.row_block_2.getParent().id, 'row_block_1');
       });
       test('Cursor on incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_2.inputList[0].connection));
         // Connect method will try to find a way to connect blocks with
         // incompatible types.
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_2.inputList[0].connection);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.row_block_1.inputList[0].connection.targetBlock(),
             this.row_block_2);
       });
       test('Cursor on really incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_1.previousConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_1.previousConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.row_block_2));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.row_block_2);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.row_block_2.getParent().id, 'row_block_1');
       });
     });
@@ -258,65 +241,53 @@ suite('Insert/Modify', function() {
         this.statement_block_1.inputList[0].connection.connect(
             this.stack_block_1.previousConnection);
         this.stack_block_1.nextConnection.connect(this.stack_block_2.previousConnection);
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createInputNode(
-                this.statement_block_1.inputList[0]));
+        this.markerNode = Blockly.ASTNode.createInputNode(
+            this.statement_block_1.inputList[0]);
       });
       test('Cursor on block inside statement', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_2.previousConnection));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_2.previousConnection);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.stack_block_2.previousConnection.targetBlock(),
             this.statement_block_1);
       });
       test('Cursor on stack', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createStackNode(
-                this.statement_block_2));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createStackNode(this.statement_block_2);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.statement_block_2.getParent().id, 'statement_block_1');
       });
       test('Cursor on incompatible type', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_1.outputConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_1.outputConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
         assert.isNull(this.row_block_1.getParent());
       });
-
     });
 
     suite('Marker on output', function() {
       setup(function() {
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_1.outputConnection));
+        this.markerNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_1.outputConnection);
       });
       test('Cursor on compatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_2.inputList[0].connection));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_2.inputList[0].connection);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.row_block_1.getParent().id, 'row_block_2');
       });
       test('Cursor on incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_2.outputConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_2.outputConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on really incompatible connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_1.previousConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_1.previousConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.row_block_2));
-        assert.isTrue(Blockly.navigation.modify_());
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.row_block_2);
+        assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
         assert.equal(this.row_block_1.getParent().id, 'row_block_2');
       });
     });
@@ -325,66 +296,55 @@ suite('Insert/Modify', function() {
 
   suite('Marked Workspace', function() {
     setup(function() {
-      this.workspace.getMarker(Blockly.navigation.MARKER_NAME).drawer_ = null;
-      this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-          Blockly.ASTNode.createWorkspaceNode(
-              this.workspace, new Blockly.utils.Coordinate(100, 200)));
+      this.markerNode = Blockly.ASTNode.createWorkspaceNode(
+          this.workspace, new Blockly.utils.Coordinate(100, 200));
     });
     test('Cursor on row block', function() {
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createBlockNode(
-              this.row_block_1));
-      assert.isTrue(Blockly.navigation.modify_());
+      const cursorNode = Blockly.ASTNode.createBlockNode(this.row_block_1);
+      assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
       const pos = this.row_block_1.getRelativeToSurfaceXY();
       assert.equal(pos.x, 100);
       assert.equal(pos.y, 200);
     });
 
     test('Cursor on output connection', function() {
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createConnectionNode(
-              this.row_block_1.outputConnection));
-      assert.isTrue(Blockly.navigation.modify_());
+      const cursorNode = Blockly.ASTNode.createConnectionNode(
+          this.row_block_1.outputConnection);
+      assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
       const pos = this.row_block_1.getRelativeToSurfaceXY();
       assert.equal(pos.x, 100);
       assert.equal(pos.y, 200);
     });
 
     test('Cursor on previous connection', function() {
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createConnectionNode(
-              this.stack_block_1.previousConnection));
-      assert.isTrue(Blockly.navigation.modify_());
+      const cursorNode = Blockly.ASTNode.createConnectionNode(
+          this.stack_block_1.previousConnection);
+      assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
       const pos = this.stack_block_1.getRelativeToSurfaceXY();
       assert.equal(pos.x, 100);
       assert.equal(pos.y, 200);
     });
 
     test('Cursor on input connection', function() {
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createConnectionNode(
-              this.row_block_1.inputList[0].connection));
       // Move the source block to the marked location on the workspace.
-      assert.isTrue(Blockly.navigation.modify_());
+      const cursorNode = Blockly.ASTNode.createConnectionNode(
+          this.row_block_1.inputList[0].connection);
+      assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
     });
 
     test('Cursor on next connection', function() {
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createConnectionNode(
-              this.stack_block_1.nextConnection));
       // Move the source block to the marked location on the workspace.
-      assert.isTrue(Blockly.navigation.modify_());
+      const cursorNode = Blockly.ASTNode.createConnectionNode(
+          this.stack_block_1.nextConnection);
+      assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
     });
 
     test('Cursor on child block (row)', function() {
       this.row_block_1.inputList[0].connection.connect(
           this.row_block_2.outputConnection);
 
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createBlockNode(
-              this.row_block_2));
-
-      assert.isTrue(Blockly.navigation.modify_());
+      const cursorNode = Blockly.ASTNode.createBlockNode(this.row_block_2);
+      assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
       assert.isNull(this.row_block_2.getParent());
       const pos = this.row_block_2.getRelativeToSurfaceXY();
       assert.equal(pos.x, 100);
@@ -395,11 +355,8 @@ suite('Insert/Modify', function() {
       this.stack_block_1.nextConnection.connect(
           this.stack_block_2.previousConnection);
 
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createBlockNode(
-              this.stack_block_2));
-
-      assert.isTrue(Blockly.navigation.modify_());
+      const cursorNode = Blockly.ASTNode.createBlockNode(this.stack_block_2);
+      assert.isTrue(this.navigation.modify(this.workspace, this.markerNode, cursorNode));
       assert.isNull(this.stack_block_2.getParent());
       const pos = this.stack_block_2.getRelativeToSurfaceXY();
       assert.equal(pos.x, 100);
@@ -407,10 +364,9 @@ suite('Insert/Modify', function() {
     });
 
     test('Cursor on workspace', function() {
-      this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createWorkspaceNode(
-              this.workspace, new Blockly.utils.Coordinate(100, 100)));
-      assertModifyFails();
+      const cursorNode = Blockly.ASTNode.createWorkspaceNode(
+          this.workspace, new Blockly.utils.Coordinate(100, 100));
+      assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
     });
   });
 
@@ -421,77 +377,58 @@ suite('Insert/Modify', function() {
       // These tests are using a stack block, but do not depend on the type of
       // the block.
       setup(function() {
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.stack_block_1));
+        this.markerNode = Blockly.ASTNode.createBlockNode(this.stack_block_1);
       });
       test('Cursor on workspace', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createWorkspaceNode(
-                this.workspace, new Blockly.utils.Coordinate(100, 100)));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createWorkspaceNode(
+            this.workspace, new Blockly.utils.Coordinate(100, 100));
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
     });
     suite('Marked stack block', function() {
       setup(function() {
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.stack_block_1));
+        this.markerNode = Blockly.ASTNode.createBlockNode(this.stack_block_1);
       });
       test('Cursor on row block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.row_block_1));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.row_block_1);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on stack block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.stack_block_1));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.stack_block_1);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on next connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_2.nextConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_2.nextConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on previous connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.stack_block_2.previousConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.stack_block_2.previousConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
     });
     suite('Marked row block', function() {
       setup(function() {
-        this.workspace.getMarker(Blockly.navigation.MARKER_NAME).setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.row_block_1));
+        this.markerNode = Blockly.ASTNode.createBlockNode(this.row_block_1);
       });
       test('Cursor on stack block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.stack_block_1));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.stack_block_1);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on row block', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createBlockNode(
-                this.row_block_1));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createBlockNode(this.row_block_1);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on value input connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_2.inputList[0].connection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_2.inputList[0].connection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
       test('Cursor on output connection', function() {
-        this.workspace.getCursor().setCurNode(
-            Blockly.ASTNode.createConnectionNode(
-                this.row_block_2.outputConnection));
-        assertModifyFails();
+        const cursorNode = Blockly.ASTNode.createConnectionNode(
+            this.row_block_2.outputConnection);
+        assertModifyFails(this.navigation, this.workspace, this.markerNode, cursorNode);
       });
     });
   });

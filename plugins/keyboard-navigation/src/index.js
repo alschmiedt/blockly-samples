@@ -719,8 +719,15 @@ export class Register {
         Blockly.utils.KeyCodes.BACKSPACE, deleteShortcut.name, true);
   }
 
+  /**
+   * Removes all the keyboard shortcuts.
+   */
   dispose() {
-    // TODO: Unregister everythign that was registered here.
+    const shortcutNames = Object.values(Constants.ShortcutNames);
+    for (const name of shortcutNames) {
+      Blockly.ShortcutRegistry.registry.unregister(name);
+    }
+    this.navigation_.dispose();
   }
 
   /**

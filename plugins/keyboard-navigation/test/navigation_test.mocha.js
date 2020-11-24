@@ -17,7 +17,6 @@ const assert = chai.assert;
 
 const Blockly = require('blockly/node');
 const {defaultRegistration} = require('../src/index');
-const {toolboxCategories} = require('@blockly/dev-tools');
 const Constants = require('../src/constants');
 
 suite('Navigation', function() {
@@ -90,10 +89,12 @@ suite('Navigation', function() {
     Blockly.utils.dom.getFastTextWidthWithSizeString = function() {
       return 10;
     };
+    defaultRegistration.init();
   });
 
   teardown(function() {
     this.jsdomCleanup();
+    defaultRegistration.dispose();
   });
 
   // Test that toolbox key handlers call through to the right functions and
@@ -708,12 +709,9 @@ suite('Navigation', function() {
 
     test('Connect two blocks that are on the workspace', function() {
       const targetNode = Blockly.ASTNode.createConnectionNode(this.basicBlock.previousConnection);
-      this.workspace.getMarker(this.navigation.MARKER_NAME).setCurNode(targetNode);
-
       const sourceNode = Blockly.ASTNode.createConnectionNode(this.basicBlock2.nextConnection);
-      this.workspace.getCursor().setCurNode(sourceNode);
 
-      this.navigation.modify(this.workspace);
+      this.navigation.modify(this.workspace, targetNode, sourceNode);
       const insertedBlock = this.basicBlock.previousConnection.targetBlock();
 
       chai.assert.isNotNull(insertedBlock);
@@ -890,7 +888,7 @@ suite('Navigation', function() {
       // Set the cursor to be on the child block
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the parent block
-      this.navigation.moveCursorOnBlockDeleteByDrag_(mockDeleteBlockEvent, this.workspace);
+      this.navigation.handleBlockDeleteByDrag_(mockDeleteBlockEvent, this.workspace);
       chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.WORKSPACE);
     });
@@ -908,7 +906,7 @@ suite('Navigation', function() {
       // Set the cursor to be on the stack
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the top block in the stack
-      this.navigation.moveCursorOnBlockDeleteByDrag_(mockDeleteBlockEvent, this.workspace);
+      this.navigation.handleBlockDeleteByDrag_(mockDeleteBlockEvent, this.workspace);
       chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.WORKSPACE);
     });
