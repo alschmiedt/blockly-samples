@@ -8,7 +8,6 @@
  * @fileoverview The class representing a cursor used to navigate the flyout.
  * @author aschmiedt@google.com (Abby Schmiedt)
  */
-'use strict';
 
 import * as Blockly from 'blockly/core';
 
@@ -84,17 +83,11 @@ export class FlyoutCursor extends Blockly.Cursor {
   }
 }
 
-/**
- * Name used for registering a flyout cursor.
- * TODO: Should this be exported in index.js?
- * @const {string}
- */
 export const registrationName = 'FlyoutCursor';
-
-/**
- * The type used for registering a flyout cursor.
- * @const {!Blockly.registry.Type<T>}
- */
 export const registrationType = Blockly.registry.Type.CURSOR;
 
 Blockly.registry.register(registrationType, registrationName, FlyoutCursor);
+
+export const pluginInfo = {
+  [registrationType]: registrationName,
+};

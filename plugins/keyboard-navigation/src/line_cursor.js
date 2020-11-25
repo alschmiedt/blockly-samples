@@ -12,10 +12,8 @@
  * through the elements in a line.
  * @author aschmiedt@google.com (Abby Schmiedt)
  */
-'use strict';
 
 import * as Blockly from 'blockly/core';
-
 
 /**
  * Class for a line cursor.
@@ -24,7 +22,15 @@ import * as Blockly from 'blockly/core';
  * @constructor
  * @extends {Blockly.BasicCursor}
  */
-export class LineCursor extends Blockly.Cursor {
+export class LineCursor extends Blockly.BasicCursor {
+
+  /**
+   * Constructor for a line cursor.
+   */
+  constructor() {
+    super();
+  }
+
   /**
    * Find the next node in the pre order traversal.
    * @return {Blockly.ASTNode} The next node, or null if the current node is
@@ -164,3 +170,13 @@ export class LineCursor extends Blockly.Cursor {
     return isValid;
   }
 }
+
+
+export const registrationName = 'LineCursor';
+export const registrationType = Blockly.registry.Type.CURSOR;
+
+Blockly.registry.register(registrationType, registrationName, LineCursor);
+
+export const pluginInfo = {
+  [registrationType]: registrationName,
+};
