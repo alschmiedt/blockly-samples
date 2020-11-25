@@ -5,8 +5,8 @@
  */
 
 /**
- * @fileoverview Adds onBlocklyAction methods to fields, the toolbox, the flyout
- * and the cursor.
+ * @fileoverview Adds a method to certain components (fields and the toolbox)
+ * that allows them to handle keyboard shortcuts.
  * @author aschmiedt@google.com (Abby Schmiedt)
  */
 
@@ -14,48 +14,49 @@ import * as Blockly from 'blockly/core';
 import * as Constants from '../src/constants';
 
 /**
- * Class responsible for adding onBlocklyAction handlers to fields, the toolbox,
- * the flyout and the cursor.
- * TODO: Test adding a class with onBlocklyAction already added.
- * TODO: GO through this and update names.
+ * Class responsible for adding methods to fields and the toolbox that allows
+ * them to handle keyboard shortcuts.
+ * TODO: Go through and update onBlocklyAction -> onShortcut.
+ * TODO: Should these components have a setOnBlocklyAction?
+ * TOOD: Should these be @package?
  */
-export class AddShortcutHandlers {
+export class AddOnShortcut {
   /**
-   * Adds onBlocklyAction methods that do not rely on a workspace.
+   * Adds methods to handle keyboard shortcuts.
    */
   constructor() {
     this.addShortcutHandlers();
   }
 
   /**
-   * Adds onBlocklyAction methods to core Blockly classes that require it.
-   * Ex: Flyout, Toolbox, Cursor, and certain fields.
+   * Adds methods to core Blockly components that allows them to handle keyboard
+   * shortcuts.
    */
   addShortcutHandlers() {
-    this.addFieldColourShortcutHandlers();
-    this.addFieldDropdownShortcutHandlers();
-    this.addToolboxShortcutHandler();
+    this.addFieldColourShortcutHandler_();
+    this.addFieldDropdownShortcutHandler_();
+    this.addToolboxShortcutHandler_();
   }
 
   /**
-   * Adds onBlocklyAction method to the colour field.
-   * No-op if the colour field is not registered.
+   * Adds method to handle keyboard shortcuts to the colour field.
+   * No-op if the colour field is not available.
+   * @protected
    */
-  addFieldColourShortcutHandlers() {
+  addFieldColourShortcutHandler_() {
     if (!Blockly.FieldColour) {
       return;
     }
     /**
-     * Handles the given action.
+     * Handles the given keyboard shortcut.
      * This is only triggered when keyboard accessibility mode is enabled.
      * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
      *     to be handled.
-     * @return {boolean} True if the field handled the action, false otherwise.
-     * TODO: Need to check if Blockly.FieldColour and the rest of the fields
-     * exist, before doing this.
+     * @return {boolean} True if the field handled the shortcut,
+     *     false otherwise.
      * @package
      */
-    Blockly.FieldColour.prototype.onBlocklyAction = function(shortcut) {
+    Blockly.FieldColour.prototype.onShortcut = function(shortcut) {
       if (this.picker_) {
         switch (shortcut.name) {
           case Constants.ShortcutNames.PREVIOUS:
@@ -74,27 +75,29 @@ export class AddShortcutHandlers {
             return false;
         }
       }
-      return Blockly.FieldColour.superClass_.onBlocklyAction.call(this, shortcut);
+      return Blockly.FieldColour.superClass_.onShortcut.call(this, shortcut);
     };
   }
 
   /**
-   * Adds onBlocklyAction method to the dropdown field.
-   * No-op if the colour field is not registered.
+   * Adds method to handle keyboard shortcuts to the dropdown field.
+   * No-op if the dropdown field is not available.
+   * @protected
    */
-  addFieldDropdownShortcutHandlers() {
+  addFieldDropdownShortcutHandler_() {
     if (!Blockly.FieldDropdown) {
       return;
     }
     /**
-     * Handles the given action.
+     * Handles the given keyboard shortcut.
      * This is only triggered when keyboard accessibility mode is enabled.
      * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
      *     to be handled.
-     * @return {boolean} True if the field handled the action, false otherwise.
+     * @return {boolean} True if the field handled the shortcut,
+     *     false otherwise.
      * @package
      */
-    Blockly.FieldDropdown.prototype.onBlocklyAction = function(shortcut) {
+    Blockly.FieldDropdown.prototype.onShortcut = function(shortcut) {
       if (this.menu_) {
         switch (shortcut.name) {
           case Constants.ShortcutNames.PREVIOUS:
@@ -107,28 +110,29 @@ export class AddShortcutHandlers {
             return false;
         }
       }
-      return Blockly.FieldDropdown.superClass_.onBlocklyAction.call(this, shortcut);
+      return Blockly.FieldDropdown.superClass_.onShortcut.call(this, shortcut);
     };
   }
 
   /**
-   * Adds onBlocklyAction method to the toolbox.
-   * No-op if the default toolbox does not exist or if the toolbox already has
-   * and onBlocklyAction method.
+   * Adds method to handle keyboard shortcuts to the toolbox.
+   * No-op if the default toolbox available.
+   * @protected
    */
-  addToolboxShortcutHandler() {
-    if (!Blockly.Toolbox || Blockly.Toolbox.prototype.onBlocklyAction) {
+  addToolboxShortcutHandler_() {
+    if (!Blockly.Toolbox) {
       return;
     }
     /**
-     * Handles the given Blockly action on a toolbox.
+     * Handles the given keyboard shortcut.
      * This is only triggered when keyboard accessibility mode is enabled.
      * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
      *     to be handled.
-     * @return {boolean} True if the field handled the action, false otherwise.
+     * @return {boolean} True if the field handled the shortcut,
+     *     false otherwise.
      * @package
      */
-    Blockly.Toolbox.prototype.onBlocklyAction = function(shortcut) {
+    Blockly.Toolbox.prototype.onShortcut = function(shortcut) {
       if (!this.selectedItem_) {
         return false;
       }

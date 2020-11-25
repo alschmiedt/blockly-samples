@@ -13,11 +13,9 @@
 
 const chai = require('chai');
 const sinon = require('sinon');
-const assert = chai.assert;
 
 const Blockly = require('blockly/node');
-const {defaultRegistration} = require('../src/index');
-const Constants = require('../src/constants');
+const {defaultRegister, Constants} = require('../src/index');
 
 suite('Navigation', function() {
   function createNavigationWorkspace(enableKeyboardNav, readOnly) {
@@ -41,8 +39,8 @@ suite('Navigation', function() {
     readOnly: readOnly,
     });
     if (enableKeyboardNav) {
-      defaultRegistration.navigation_.enableKeyboardAccessibility(workspace);
-      defaultRegistration.navigation_.setState(workspace, Constants.State.WORKSPACE);
+      defaultRegister.navigation_.enableKeyboardAccessibility(workspace);
+      defaultRegister.navigation_.setState(workspace, Constants.State.WORKSPACE);
     }
     return workspace;
   }
@@ -89,12 +87,12 @@ suite('Navigation', function() {
     Blockly.utils.dom.getFastTextWidthWithSizeString = function() {
       return 10;
     };
-    defaultRegistration.init();
+    defaultRegister.init();
   });
 
   teardown(function() {
     this.jsdomCleanup();
-    defaultRegistration.dispose();
+    defaultRegister.dispose();
   });
 
   // Test that toolbox key handlers call through to the right functions and
@@ -113,8 +111,8 @@ suite('Navigation', function() {
         ],
       }]);
       this.workspace = createNavigationWorkspace(true);
-      defaultRegistration.navigation_.addWorkspace(this.workspace);
-      defaultRegistration.navigation_.focusToolbox(this.workspace);
+      defaultRegister.navigation_.addWorkspace(this.workspace);
+      defaultRegister.navigation_.focusToolbox(this.workspace);
     });
 
     teardown(function() {
@@ -159,7 +157,7 @@ suite('Navigation', function() {
     });
 
     test('Go to flyout', function() {
-      const navigation = defaultRegistration.navigation_;
+      const navigation = defaultRegister.navigation_;
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.D, 'NotAField');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
@@ -176,7 +174,7 @@ suite('Navigation', function() {
     });
 
     test('Focuses workspace from toolbox (e)', function() {
-      const navigation = defaultRegistration.navigation_;
+      const navigation = defaultRegister.navigation_;
       navigation.setState(this.workspace, Constants.State.TOOLBOX);
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.E, 'NotAField');
       const keyDownSpy =
@@ -189,7 +187,7 @@ suite('Navigation', function() {
           navigation.getState(this.workspace), Constants.State.WORKSPACE);
     });
     test('Focuses workspace from toolbox (escape)', function() {
-      const navigation = defaultRegistration.navigation_;
+      const navigation = defaultRegister.navigation_;
       navigation.setState(this.workspace, Constants.State.TOOLBOX);
       const mockEvent =
           createKeyDownEvent(Blockly.utils.KeyCodes.ESC, 'NotAField');
@@ -222,7 +220,7 @@ suite('Navigation', function() {
         ],
       }]);
       this.workspace = createNavigationWorkspace(true);
-      this.navigation = defaultRegistration.navigation_;
+      this.navigation = defaultRegister.navigation_;
       this.navigation.addWorkspace(this.workspace);
       this.navigation.focusToolbox(this.workspace);
       this.navigation.focusFlyout(this.workspace);
@@ -341,8 +339,8 @@ suite('Navigation', function() {
         'nextStatement': null,
       }]);
       this.workspace = createNavigationWorkspace(true);
-      defaultRegistration.addWorkspace(this.workspace);
-      this.navigation = defaultRegistration.navigation_;
+      defaultRegister.addWorkspace(this.workspace);
+      this.navigation = defaultRegister.navigation_;
       this.basicBlock = this.workspace.newBlock('basic_block');
     });
 
@@ -476,8 +474,8 @@ suite('Navigation', function() {
         ],
       }]);
       this.workspace = createNavigationWorkspace(true);
-      defaultRegistration.addWorkspace(this.workspace);
-      this.navigation = defaultRegistration.navigation_;
+      defaultRegister.addWorkspace(this.workspace);
+      this.navigation = defaultRegister.navigation_;
 
       this.workspace.getCursor().drawer_ = null;
       this.basicBlock = this.workspace.newBlock('basic_block');
@@ -492,7 +490,7 @@ suite('Navigation', function() {
     test('Action does not exist', function() {
       const block = this.workspace.getTopBlocks()[0];
       const field = block.inputList[0].fieldRow[0];
-      const fieldSpy = sinon.spy(field, 'onBlocklyAction');
+      const fieldSpy = sinon.spy(field, 'onShortcut');
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.N, '');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
@@ -508,7 +506,7 @@ suite('Navigation', function() {
       const block = this.workspace.getTopBlocks()[0];
       const field = block.inputList[0].fieldRow[0];
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.A, '');
-      const fieldSpy = sinon.stub(field, 'onBlocklyAction').returns(true);
+      const fieldSpy = sinon.stub(field, 'onShortcut').returns(true);
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
       this.workspace.getCursor().setCurNode(Blockly.ASTNode.createFieldNode(field));
@@ -523,7 +521,7 @@ suite('Navigation', function() {
       const block = this.workspace.getTopBlocks()[0];
       const field = block.inputList[0].fieldRow[0];
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.A, '');
-      const fieldSpy = sinon.spy(field, 'onBlocklyAction');
+      const fieldSpy = sinon.spy(field, 'onShortcut');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
       this.workspace.getCursor().setCurNode(Blockly.ASTNode.createFieldNode(field));
@@ -658,8 +656,8 @@ suite('Navigation', function() {
       }]);
 
       this.workspace = createNavigationWorkspace(true);
-      defaultRegistration.addWorkspace(this.workspace);
-      this.navigation = defaultRegistration.navigation_;
+      defaultRegister.addWorkspace(this.workspace);
+      this.navigation = defaultRegister.navigation_;
 
       const basicBlock = this.workspace.newBlock('basic_block');
       const basicBlock2 = this.workspace.newBlock('basic_block');
@@ -745,8 +743,8 @@ suite('Navigation', function() {
       }]);
 
       this.workspace = createNavigationWorkspace(true);
-      defaultRegistration.addWorkspace(this.workspace);
-      this.navigation = defaultRegistration.navigation_;
+      defaultRegister.addWorkspace(this.workspace);
+      this.navigation = defaultRegister.navigation_;
 
       const basicBlock = this.workspace.newBlock('basic_block');
       const basicBlock2 = this.workspace.newBlock('basic_block');
@@ -839,8 +837,8 @@ suite('Navigation', function() {
         'nextStatement': null,
       }]);
       this.workspace = createNavigationWorkspace(true);
-      defaultRegistration.addWorkspace(this.workspace);
-      this.navigation = defaultRegistration.navigation_;
+      defaultRegister.addWorkspace(this.workspace);
+      this.navigation = defaultRegister.navigation_;
 
       this.basicBlockA = this.workspace.newBlock('basic_block');
       this.basicBlockB = this.workspace.newBlock('basic_block');

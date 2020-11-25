@@ -22,9 +22,6 @@ export const State = {
 
 /**
  * Object holding default shortcut names.
- * TODO: How to reconcile this with onBlocklyAction.
- * TODO: How would someone override these values if they are not on the class?
- * TODO: Update move ws cursor names.
  * @enum {string}
  */
 export const ShortcutNames = {
@@ -42,8 +39,8 @@ export const ShortcutNames = {
   CUT: 'keyboard_nav_cut',
   PASTE: 'keyboard_nav_paste',
   DELETE: 'keyboard_nav_delete',
-  MOVE_WS_CURSOR_UP: 'move workspace cursor up',
-  MOVE_WS_CURSOR_DOWN: 'move workspace cursor down',
-  MOVE_WS_CURSOR_LEFT: 'move workspace cursor left',
-  MOVE_WS_CURSOR_RIGHT: 'move workspace cursor right',
+  MOVE_WS_CURSOR_UP: 'workspace_up',
+  MOVE_WS_CURSOR_DOWN: 'workspace_down',
+  MOVE_WS_CURSOR_LEFT: 'workspace_left',
+  MOVE_WS_CURSOR_RIGHT: 'workspace_right',
 };
