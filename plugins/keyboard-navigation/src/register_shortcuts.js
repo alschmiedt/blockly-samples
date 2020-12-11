@@ -81,7 +81,7 @@ export class Register {
         const flyout = workspace.getFlyout();
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             isHandled = this.checkField_(workspace, action);
             if (!isHandled) {
@@ -173,7 +173,7 @@ export class Register {
       callback: (workspace, e, action) => {
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             isHandled = this.checkField_(workspace, action);
             if (!isHandled) {
@@ -214,7 +214,7 @@ export class Register {
         const toolbox = workspace.getToolbox();
         const flyout = workspace.getFlyout();
         let isHandled = false;
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             isHandled = this.checkField_(workspace, action);
             if (!isHandled) {
@@ -258,7 +258,7 @@ export class Register {
       callback: (workspace, e, action) => {
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             isHandled = this.checkField_(workspace, action);
             if (!isHandled) {
@@ -299,7 +299,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             return this.navigation_.connectMarkerAndCursor(workspace);
           default:
@@ -326,7 +326,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             this.navigation_.handleEnterForWS(workspace);
             return true;
@@ -358,7 +358,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             this.navigation_.disconnectBlocks(workspace);
             return true;
@@ -387,7 +387,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.WORKSPACE:
             if (!workspace.getToolbox()) {
               this.navigation_.focusFlyout(workspace);
@@ -419,7 +419,7 @@ export class Register {
         return workspace.keyboardAccessibilityMode;
       },
       callback: (workspace) => {
-        switch (this.navigation_.workspaceStates[workspace.id]) {
+        switch (this.navigation_.getState(workspace)) {
           case Constants.State.FLYOUT:
             this.navigation_.focusWorkspace(workspace);
             return true;
@@ -542,7 +542,6 @@ export class Register {
   /**
    * Keyboard shortcut to copy the block the cursor is currently on.
    * @protected
-   * TODO: Add a method to test this.
    */
   registerCopy_() {
     /** @type {!Blockly.ShortcutRegistry.KeyboardShortcut} */
@@ -687,8 +686,6 @@ export class Register {
         if (workspace.keyboardAccessibilityMode &&
             !workspace.options.readOnly) {
           const curNode = workspace.getCursor().getCurNode();
-          // TODO: What do we do if a block is selected
-          // but the cursor is on the ws?
           if (curNode && curNode.getSourceBlock()) {
             const sourceBlock = curNode.getSourceBlock();
             return sourceBlock &&

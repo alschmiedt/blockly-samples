@@ -16,71 +16,9 @@ const sinon = require('sinon');
 
 const Blockly = require('blockly/node');
 const {defaultRegister, Constants} = require('../src/index');
+const {createNavigationWorkspace, createKeyDownEvent} = require('./test_helper');
 
 suite('Navigation', function() {
-  function createNavigationWorkspace(enableKeyboardNav, readOnly) {
-    const workspace = Blockly.inject('blocklyDiv', {toolbox: `
-      <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-categories" style="display: none">
-        <category name="First" css-container="something">
-          <block type="basic_block">
-            <field name="TEXT">FirstCategory-FirstBlock</field>
-          </block>
-          <block type="basic_block">
-            <field name="TEXT">FirstCategory-SecondBlock</field>
-          </block>
-        </category>
-        <category name="Second">
-          <block type="basic_block">
-            <field name="TEXT">SecondCategory-FirstBlock</field>
-          </block>
-        </category>
-      </xml>
-  `,
-    readOnly: readOnly,
-    });
-    if (enableKeyboardNav) {
-      defaultRegister.navigation_.enableKeyboardAccessibility(workspace);
-      defaultRegister.navigation_.setState(workspace, Constants.State.WORKSPACE);
-    }
-    return workspace;
-  }
-
-  /**
-   * Creates a key down event used for testing.
-   * @param {number} keyCode The keycode for the event. Use Blockly.utils.KeyCodes enum.
-   * @param {string} type The type of the target. This only matters for the
-   *     Blockly.utils.isTargetInput method.
-   * @param {Array<number>} modifiers A list of modifiers. Use Blockly.utils.KeyCodes enum.
-   * @return {{keyCode: *, getModifierState: (function(): boolean),
-   *     preventDefault: preventDefault, target: {type: *}}} The mocked keydown event.
-   */
-  function createKeyDownEvent(keyCode, type, modifiers) {
-    const event = {
-      keyCode: keyCode,
-      target: {type: type},
-      getModifierState: function(name) {
-        if (name == 'Shift' && this.shiftKey) {
-          return true;
-        } else if (name == 'Control' && this.ctrlKey) {
-          return true;
-        } else if (name == 'Meta' && this.metaKey) {
-          return true;
-        } else if (name == 'Alt' && this.altKey) {
-          return true;
-        }
-        return false;
-      },
-      preventDefault: function() {},
-    };
-    if (modifiers && modifiers.length > 0) {
-      event.altKey = modifiers.indexOf(Blockly.utils.KeyCodes.ALT) > -1;
-      event.ctrlKey = modifiers.indexOf(Blockly.utils.KeyCodes.CTRL) > -1;
-      event.metaKey = modifiers.indexOf(Blockly.utils.KeyCodes.META) > -1;
-      event.shiftKey = modifiers.indexOf(Blockly.utils.KeyCodes.SHIFT) > -1;
-    }
-    return event;
-  }
-
   setup(function() {
     this.jsdomCleanup =
       require('jsdom-global')('<!DOCTYPE html><div id="blocklyDiv"></div>');
@@ -110,7 +48,7 @@ suite('Navigation', function() {
           },
         ],
       }]);
-      this.workspace = createNavigationWorkspace(true);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.navigation_.addWorkspace(this.workspace);
       defaultRegister.navigation_.focusToolbox(this.workspace);
     });
@@ -219,7 +157,7 @@ suite('Navigation', function() {
           },
         ],
       }]);
-      this.workspace = createNavigationWorkspace(true);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
       this.navigation = defaultRegister.navigation_;
       this.navigation.addWorkspace(this.workspace);
       this.navigation.focusToolbox(this.workspace);
@@ -308,6 +246,23 @@ suite('Navigation', function() {
       chai.assert.equal(this.workspace.getTopBlocks().length, 1);
     });
 
+    test('Mark - Disabled Block', function() {
+      const flyout = this.workspace.getFlyout();
+      const topBlock = flyout.getWorkspace().getTopBlocks()[0];
+      topBlock.setEnabled(false);
+      const mockEvent =
+          createKeyDownEvent(Blockly.utils.KeyCodes.ENTER, 'NotAField');
+      const keyDownSpy =
+          sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
+
+      Blockly.onKeyDown(mockEvent);
+
+      chai.assert.isTrue(keyDownSpy.returned(true));
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.FLYOUT);
+      chai.assert.equal(this.workspace.getTopBlocks().length, 0);
+    });
+
     test('Exit', function() {
       const mockEvent =
           createKeyDownEvent(Blockly.utils.KeyCodes.ESC, 'NotAField');
@@ -338,7 +293,7 @@ suite('Navigation', function() {
         'previousStatement': null,
         'nextStatement': null,
       }]);
-      this.workspace = createNavigationWorkspace(true);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
       this.basicBlock = this.workspace.newBlock('basic_block');
@@ -407,6 +362,8 @@ suite('Navigation', function() {
     });
 
     test('Insert', function() {
+      const blockNode = Blockly.ASTNode.createBlockNode(this.basicBlock);
+      this.navigation.getMarker_(this.workspace).setCurNode(blockNode);
       // Stub modify as we are not testing its behavior, only if it was called.
       // Otherwise, there is a warning because there is no marked node.
       const modifyStub = sinon.stub(this.navigation, 'modify').returns(true);
@@ -473,7 +430,7 @@ suite('Navigation', function() {
           },
         ],
       }]);
-      this.workspace = createNavigationWorkspace(true);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -587,7 +544,8 @@ suite('Navigation', function() {
           'tooltip': '',
           'helpUrl': '',
         }]);
-        this.workspace = createNavigationWorkspace(true, true);
+        this.workspace = createNavigationWorkspace(
+            defaultRegister.navigation_, true, true);
 
         Blockly.mainWorkspace = this.workspace;
         this.workspace.getCursor().drawer_ = null;
@@ -655,7 +613,7 @@ suite('Navigation', function() {
         'nextStatement': null,
       }]);
 
-      this.workspace = createNavigationWorkspace(true);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -706,8 +664,10 @@ suite('Navigation', function() {
     });
 
     test('Connect two blocks that are on the workspace', function() {
-      const targetNode = Blockly.ASTNode.createConnectionNode(this.basicBlock.previousConnection);
-      const sourceNode = Blockly.ASTNode.createConnectionNode(this.basicBlock2.nextConnection);
+      const targetNode = Blockly.ASTNode.createConnectionNode(
+          this.basicBlock.previousConnection);
+      const sourceNode = Blockly.ASTNode.createConnectionNode(
+          this.basicBlock2.nextConnection);
 
       this.navigation.modify(this.workspace, targetNode, sourceNode);
       const insertedBlock = this.basicBlock.previousConnection.targetBlock();
@@ -742,7 +702,7 @@ suite('Navigation', function() {
         'helpUrl': '',
       }]);
 
-      this.workspace = createNavigationWorkspace(true);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -753,6 +713,7 @@ suite('Navigation', function() {
 
       const inlineBlock1 = this.workspace.newBlock('inline_block');
       const inlineBlock2 = this.workspace.newBlock('inline_block');
+      const inlineBlock3 = this.workspace.newBlock('inline_block');
 
 
       this.basicBlock = basicBlock;
@@ -762,6 +723,7 @@ suite('Navigation', function() {
 
       this.inlineBlock1 = inlineBlock1;
       this.inlineBlock2 = inlineBlock2;
+      this.inlineBlock3 = inlineBlock3;
 
       this.basicBlock.nextConnection.connect(this.basicBlock2.previousConnection);
 
@@ -795,7 +757,6 @@ suite('Navigation', function() {
 
       chai.assert.equal(this.basicBlock.nextConnection.targetBlock(), this.basicBlock3);
       chai.assert.equal(this.basicBlock2.previousConnection.targetBlock(), this.basicBlock4);
-
     });
 
     test('Connect cursor on next into stack', function() {
@@ -826,6 +787,17 @@ suite('Navigation', function() {
       chai.assert.isNull(this.inlineBlock2.outputConnection.targetBlock());
       chai.assert.equal(this.inlineBlock1.outputConnection.targetBlock(), this.inlineBlock2);
     });
+    test('Do not connect a shadow block', function() {
+      this.inlineBlock2.setShadow(true);
+
+      const markedLocation = this.inlineBlock2.outputConnection;
+      const cursorLocation = this.inlineBlock3.inputList[0].connection;
+      console.log("IN HERE");
+      const didConnect = this.navigation.connect_(cursorLocation, markedLocation);
+      chai.assert.isFalse(didConnect);
+      // chai.assert.isNull(this.inlineBlock2.outputConnection.targetBlock());
+      // chai.assert.equal(this.inlineBlock1.outputConnection.targetBlock(), this.inlineBlock2);
+    });
   });
 
   suite('Test cursor move on block delete', function() {
@@ -836,7 +808,7 @@ suite('Navigation', function() {
         'previousStatement': null,
         'nextStatement': null,
       }]);
-      this.workspace = createNavigationWorkspace(true);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -886,7 +858,7 @@ suite('Navigation', function() {
       // Set the cursor to be on the child block
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the parent block
-      this.navigation.handleBlockDeleteByDrag_(mockDeleteBlockEvent, this.workspace);
+      this.navigation.handleBlockDeleteByDrag_(this.workspace, mockDeleteBlockEvent);
       chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.WORKSPACE);
     });
@@ -895,7 +867,7 @@ suite('Navigation', function() {
       this.basicBlockA.nextConnection.connect(this.basicBlockB.previousConnection);
       const astNode = Blockly.ASTNode.createStackNode(this.basicBlockA);
       const mockDeleteBlockEvent = {
-        'blockId': this.basicBlockA,
+        'blockId': this.basicBlockA.id,
         'ids': [
           this.basicBlockA.id,
           this.basicBlockB.id,
@@ -904,9 +876,167 @@ suite('Navigation', function() {
       // Set the cursor to be on the stack
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the top block in the stack
-      this.navigation.handleBlockDeleteByDrag_(mockDeleteBlockEvent, this.workspace);
+      this.navigation.handleBlockDeleteByDrag_(this.workspace, mockDeleteBlockEvent);
       chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.WORKSPACE);
+    });
+  });
+
+  suite('Test workspace listener', function() {
+    setup(function() {
+      Blockly.defineBlocksWithJsonArray([{
+        'type': 'basic_block',
+        'message0': '',
+        'previousStatement': null,
+        'nextStatement': null,
+      }]);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      defaultRegister.addWorkspace(this.workspace);
+      this.navigation = defaultRegister.navigation_;
+      this.workspaceChangeListener = this.navigation.wsChangeWrapper_;
+      this.basicBlockA = this.workspace.newBlock('basic_block');
+    });
+
+    teardown(function() {
+      delete Blockly.Blocks['basic_block'];
+      sinon.restore();
+    });
+
+    test('Handle block mutation', function() {
+      const e = {
+        type: Blockly.Events.BLOCK_CHANGE,
+        element: 'mutation',
+        blockId: this.basicBlockA.id,
+        workspaceId: this.workspace.id,
+      };
+      const cursor = this.workspace.getCursor();
+      const nextNode = Blockly.ASTNode.createConnectionNode(
+          this.basicBlockA.nextConnection);
+      cursor.setCurNode(nextNode);
+      this.workspaceChangeListener(e);
+      chai.assert.equal(cursor.getCurNode().getType(), Blockly.ASTNode.types.BLOCK);
+    });
+    test('Handle workspace click', function() {
+      const e = {
+        type: Blockly.Events.CLICK,
+        workspaceId: this.workspace.id,
+      };
+      this.navigation.focusFlyout(this.workspace);
+      chai.assert.equal(this.navigation.getState(
+          this.workspace), Constants.State.FLYOUT);
+
+      this.workspaceChangeListener(e);
+
+      chai.assert.equal(this.navigation.getState(
+          this.workspace), Constants.State.WORKSPACE);
+    });
+    test('Focus toolbox if category clicked', function() {
+      const e = {
+        type: Blockly.Events.TOOLBOX_ITEM_SELECT,
+        workspaceId: this.workspace.id,
+        newItem: true,
+      };
+      const toolboxFocusStub = sinon.spy(this.navigation, 'focusToolbox');
+
+      this.navigation.focusWorkspace(this.workspace);
+      chai.assert.equal(this.navigation.getState(
+          this.workspace), Constants.State.WORKSPACE);
+
+      this.workspaceChangeListener(e);
+
+      sinon.assert.calledOnce(toolboxFocusStub);
+      chai.assert.equal(this.navigation.getState(
+          this.workspace), Constants.State.TOOLBOX);
+    });
+    test('Focus workspace if toolbox is unselected', function() {
+      const e = {
+        type: Blockly.Events.TOOLBOX_ITEM_SELECT,
+        workspaceId: this.workspace.id,
+        newItem: false,
+      };
+      const resetFlyoutStub = sinon.spy(this.navigation, 'resetFlyout_');
+      this.navigation.setState(this.workspace, Constants.State.TOOLBOX);
+
+      this.workspaceChangeListener(e);
+
+      sinon.assert.calledOnce(resetFlyoutStub);
+      chai.assert.equal(this.navigation.getState(
+          this.workspace), Constants.State.WORKSPACE);
+    });
+    test('Focus workspace when block created on workspace', function() {
+      const e = {
+        type: Blockly.Events.BLOCK_CREATE,
+        workspaceId: this.workspace.id,
+      };
+      const resetFlyoutStub = sinon.spy(this.navigation, 'resetFlyout_');
+      // Only works when someone is in the flyout.
+      this.navigation.setState(this.workspace, Constants.State.FLYOUT);
+
+      this.workspaceChangeListener(e);
+
+      sinon.assert.calledOnce(resetFlyoutStub);
+      chai.assert.equal(this.navigation.getState(
+          this.workspace), Constants.State.WORKSPACE);
+    });
+  });
+
+  suite('Test simple flyout listener', function() {
+    setup(function() {
+      Blockly.defineBlocksWithJsonArray([{
+        'type': 'basic_block',
+        'message0': '',
+        'previousStatement': null,
+        'nextStatement': null,
+      }]);
+      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.navigation = defaultRegister.navigation_;
+      this.flyoutChangeListener = this.navigation.flyoutChangeWrapper_;
+      this.basicBlockA = this.workspace.newBlock('basic_block');
+
+      defaultRegister.addWorkspace(this.workspace);
+      this.navigation.focusToolbox(this.workspace);
+      this.workspace.getFlyout().autoClose = false;
+    });
+
+    teardown(function() {
+      // TODO: Need to remove defaultRegister.
+      delete Blockly.Blocks['basic_block'];
+      sinon.restore();
+    });
+    test('Handle block click in flyout - click event', function() {
+      const flyout = this.workspace.getFlyout();
+      const flyoutWorkspace = flyout.getWorkspace();
+      const firstFlyoutBlock = flyoutWorkspace.getTopBlocks()[0];
+      const e = {
+        type: Blockly.Events.CLICK,
+        workspaceId: flyoutWorkspace.id,
+        targetType: 'block',
+        blockId: firstFlyoutBlock.id,
+      };
+      const flyoutCursor = flyoutWorkspace.getCursor();
+      this.navigation.focusWorkspace(this.workspace);
+
+      this.flyoutChangeListener(e);
+
+      chai.assert.equal(flyoutCursor.getCurNode().getType(), Blockly.ASTNode.types.STACK);
+      chai.assert.equal(this.navigation.getState(this.workspace), Constants.State.FLYOUT);
+    });
+    test('Handle block click in flyout - select event', function() {
+      const flyout = this.workspace.getFlyout();
+      const flyoutWorkspace = flyout.getWorkspace();
+      const firstFlyoutBlock = flyoutWorkspace.getTopBlocks()[0];
+      const e = {
+        type: Blockly.Events.SELECTED,
+        workspaceId: flyoutWorkspace.id,
+        newElementId: firstFlyoutBlock.id,
+      };
+      const flyoutCursor = flyoutWorkspace.getCursor();
+      this.navigation.focusWorkspace(this.workspace);
+
+      this.flyoutChangeListener(e);
+
+      chai.assert.equal(flyoutCursor.getCurNode().getType(), Blockly.ASTNode.types.STACK);
+      chai.assert.equal(this.navigation.getState(this.workspace), Constants.State.FLYOUT);
     });
   });
 });

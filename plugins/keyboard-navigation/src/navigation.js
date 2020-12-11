@@ -115,6 +115,10 @@ export class Navigation {
     }
   }
 
+  removeWorkspace(workspace) {
+    // TODO: Add a way to remove a workspace.
+  }
+
   /**
    * Adds all event listeners and cursors to the flyout that are needed for
    * keyboard navigation to work.
@@ -137,7 +141,6 @@ export class Navigation {
    */
   workspaceChangeListener_(e) {
     const workspace = Blockly.Workspace.getById(e.workspaceId);
-    const workspaceState = this.getState(workspace);
     if (!workspace || !workspace.keyboardAccessibilityMode) {
       return;
     }
@@ -724,6 +727,7 @@ export class Navigation {
     // Try swapping the inferior and superior connections on the blocks.
     } else if (movingSuperior && destInferior &&
         this.moveAndConnect_(movingSuperior, destInferior)) {
+      console.log("AFTER");
       return true;
     } else if (this.moveAndConnect_(movingConnection, destConnection)) {
       return true;
@@ -792,7 +796,7 @@ export class Navigation {
     }
     const movingBlock = movingConnection.getSourceBlock();
     const checker = movingConnection.getConnectionChecker();
-
+    console.log(destConnection.getSourceBlock().isShadow());
     if (checker.canConnect(movingConnection, destConnection, false) &&
         !destConnection.getSourceBlock().isShadow()) {
       this.disconnectChild_(movingConnection, destConnection);

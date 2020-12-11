@@ -14,6 +14,7 @@
 
 import * as Blockly from 'blockly/core';
 
+
 const oldDoWorkspaceClick = Blockly.Gesture.prototype.doWorkspaceClick_;
 
 /**

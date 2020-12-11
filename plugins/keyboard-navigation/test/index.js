@@ -10,8 +10,11 @@
 
 import * as Blockly from 'blockly';
 import {toolboxCategories, createPlayground} from '@blockly/dev-tools';
-import {defaultRegistration} from '../src/index';
+import {Register, LineCursorPluginInfo} from '../src/index.js';
+import {TestNavigation} from './test_navigation';
+import {TestToolbox} from './test_toolbox';
 
+let registration;
 // TODO: There should only be one import.
 /**
  * Create a workspace.
@@ -21,11 +24,14 @@ import {defaultRegistration} from '../src/index';
  */
 function createWorkspace(blocklyDiv, options) {
   const workspace = Blockly.inject(blocklyDiv, options);
-  defaultRegistration.addWorkspace(workspace);
+  registration.addWorkspace(workspace);
+  // registration.dispose();
   return workspace;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  registration = new Register();
+  registration.init();
   const defaultOptions = {
     toolbox: toolboxCategories,
   };
