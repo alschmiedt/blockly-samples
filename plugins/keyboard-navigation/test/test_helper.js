@@ -4,7 +4,8 @@ const Blockly = require('blockly/node');
 
 export function createNavigationWorkspace(
     navigation, enableKeyboardNav, readOnly) {
-  const workspace = Blockly.inject('blocklyDiv', {toolbox: `
+  const workspace = Blockly.inject('blocklyDiv', {
+    toolbox: `
       <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-categories" style="display: none">
         <category name="First" css-container="something">
           <block type="basic_block">
@@ -21,7 +22,7 @@ export function createNavigationWorkspace(
         </category>
       </xml>
   `,
-  readOnly: readOnly,
+    readOnly: readOnly,
   });
   if (enableKeyboardNav) {
     navigation.enableKeyboardAccessibility(workspace);
@@ -32,12 +33,15 @@ export function createNavigationWorkspace(
 
 /**
  * Creates a key down event used for testing.
- * @param {number} keyCode The keycode for the event. Use Blockly.utils.KeyCodes enum.
+ * @param {number} keyCode The keycode for the event. Use Blockly.utils.KeyCodes
+ *     enum.
  * @param {string} type The type of the target. This only matters for the
  *     Blockly.utils.isTargetInput method.
- * @param {Array<number>} modifiers A list of modifiers. Use Blockly.utils.KeyCodes enum.
+ * @param {Array<number>} modifiers A list of modifiers. Use
+ *     Blockly.utils.KeyCodes enum.
  * @return {{keyCode: *, getModifierState: (function(): boolean),
- *     preventDefault: preventDefault, target: {type: *}}} The mocked keydown event.
+ *     preventDefault: preventDefault, target: {type: *}}} The mocked keydown
+ * event.
  */
 export function createKeyDownEvent(keyCode, type, modifiers) {
   const event = {

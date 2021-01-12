@@ -16,12 +16,13 @@ const sinon = require('sinon');
 
 const Blockly = require('blockly/node');
 const {defaultRegister, Constants} = require('../src/index');
-const {createNavigationWorkspace, createKeyDownEvent} = require('./test_helper');
+const {createNavigationWorkspace, createKeyDownEvent} =
+    require('./test_helper');
 
 suite('Navigation', function() {
   setup(function() {
     this.jsdomCleanup =
-      require('jsdom-global')('<!DOCTYPE html><div id="blocklyDiv"></div>');
+        require('jsdom-global')('<!DOCTYPE html><div id="blocklyDiv"></div>');
     Blockly.utils.dom.getFastTextWidthWithSizeString = function() {
       return 10;
     };
@@ -48,7 +49,8 @@ suite('Navigation', function() {
           },
         ],
       }]);
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.navigation_.addWorkspace(this.workspace);
       defaultRegister.navigation_.focusToolbox(this.workspace);
     });
@@ -62,7 +64,8 @@ suite('Navigation', function() {
     const testCases = [
       [
         'Calls toolbox selectNext_',
-        createKeyDownEvent(Blockly.utils.KeyCodes.S, 'NotAField'), 'selectNext_',
+        createKeyDownEvent(Blockly.utils.KeyCodes.S, 'NotAField'),
+        'selectNext_',
       ],
       [
         'Calls toolbox selectPrevious_',
@@ -96,7 +99,8 @@ suite('Navigation', function() {
 
     test('Go to flyout', function() {
       const navigation = defaultRegister.navigation_;
-      const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.D, 'NotAField');
+      const mockEvent =
+          createKeyDownEvent(Blockly.utils.KeyCodes.D, 'NotAField');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
 
@@ -107,14 +111,16 @@ suite('Navigation', function() {
           navigation.getState(this.workspace), Constants.State.FLYOUT);
 
       const flyoutCursor = navigation.getFlyoutCursor_(this.workspace);
-      chai.assert.equal(flyoutCursor.getCurNode().getLocation().getFieldValue('TEXT'),
+      chai.assert.equal(
+          flyoutCursor.getCurNode().getLocation().getFieldValue('TEXT'),
           'FirstCategory-FirstBlock');
     });
 
     test('Focuses workspace from toolbox (e)', function() {
       const navigation = defaultRegister.navigation_;
       navigation.setState(this.workspace, Constants.State.TOOLBOX);
-      const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.E, 'NotAField');
+      const mockEvent =
+          createKeyDownEvent(Blockly.utils.KeyCodes.E, 'NotAField');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
 
@@ -157,7 +163,8 @@ suite('Navigation', function() {
           },
         ],
       }]);
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       this.navigation = defaultRegister.navigation_;
       this.navigation.addWorkspace(this.workspace);
       this.navigation.focusToolbox(this.workspace);
@@ -171,7 +178,8 @@ suite('Navigation', function() {
     });
     // Should be a no-op
     test('Previous at beginning', function() {
-      const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.W, 'NotAField');
+      const mockEvent =
+          createKeyDownEvent(Blockly.utils.KeyCodes.W, 'NotAField');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
 
@@ -180,18 +188,26 @@ suite('Navigation', function() {
       chai.assert.isTrue(keyDownSpy.returned(true));
       chai.assert.equal(
           this.navigation.getState(this.workspace), Constants.State.FLYOUT);
-      chai.assert.equal(this.navigation.getFlyoutCursor_(this.workspace).getCurNode().getLocation().getFieldValue('TEXT'),
+      chai.assert.equal(
+          this.navigation.getFlyoutCursor_(this.workspace)
+              .getCurNode()
+              .getLocation()
+              .getFieldValue('TEXT'),
           'FirstCategory-FirstBlock');
     });
     test('Previous', function() {
-      const flyoutBlocks = this.workspace.getFlyout().getWorkspace().getTopBlocks();
-      this.navigation.getFlyoutCursor_(this.workspace).setCurNode(
-          Blockly.ASTNode.createStackNode(flyoutBlocks[1]));
-      let flyoutBlock = this.navigation.getFlyoutCursor_(this.workspace).getCurNode().getLocation();
-      chai.assert.equal(flyoutBlock.getFieldValue('TEXT'),
-          'FirstCategory-SecondBlock');
+      const flyoutBlocks =
+          this.workspace.getFlyout().getWorkspace().getTopBlocks();
+      this.navigation.getFlyoutCursor_(this.workspace)
+          .setCurNode(Blockly.ASTNode.createStackNode(flyoutBlocks[1]));
+      let flyoutBlock = this.navigation.getFlyoutCursor_(this.workspace)
+                            .getCurNode()
+                            .getLocation();
+      chai.assert.equal(
+          flyoutBlock.getFieldValue('TEXT'), 'FirstCategory-SecondBlock');
 
-      const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.W, 'NotAField');
+      const mockEvent =
+          createKeyDownEvent(Blockly.utils.KeyCodes.W, 'NotAField');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
 
@@ -200,13 +216,16 @@ suite('Navigation', function() {
       chai.assert.isTrue(keyDownSpy.returned(true));
       chai.assert.equal(
           this.navigation.getState(this.workspace), Constants.State.FLYOUT);
-      flyoutBlock = this.navigation.getFlyoutCursor_(this.workspace).getCurNode().getLocation();
-      chai.assert.equal(flyoutBlock.getFieldValue('TEXT'),
-          'FirstCategory-FirstBlock');
+      flyoutBlock = this.navigation.getFlyoutCursor_(this.workspace)
+                        .getCurNode()
+                        .getLocation();
+      chai.assert.equal(
+          flyoutBlock.getFieldValue('TEXT'), 'FirstCategory-FirstBlock');
     });
 
     test('Next', function() {
-      const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.S, 'NotAField');
+      const mockEvent =
+          createKeyDownEvent(Blockly.utils.KeyCodes.S, 'NotAField');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
 
@@ -215,13 +234,16 @@ suite('Navigation', function() {
       chai.assert.isTrue(keyDownSpy.returned(true));
       chai.assert.equal(
           this.navigation.getState(this.workspace), Constants.State.FLYOUT);
-      const flyoutBlock = this.navigation.getFlyoutCursor_(this.workspace).getCurNode().getLocation();
-      chai.assert.equal(flyoutBlock.getFieldValue('TEXT'),
-          'FirstCategory-SecondBlock');
+      const flyoutBlock = this.navigation.getFlyoutCursor_(this.workspace)
+                              .getCurNode()
+                              .getLocation();
+      chai.assert.equal(
+          flyoutBlock.getFieldValue('TEXT'), 'FirstCategory-SecondBlock');
     });
 
     test('Out', function() {
-      const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.A, 'NotAField');
+      const mockEvent =
+          createKeyDownEvent(Blockly.utils.KeyCodes.A, 'NotAField');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
 
@@ -293,7 +315,8 @@ suite('Navigation', function() {
         'previousStatement': null,
         'nextStatement': null,
       }]);
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
       this.basicBlock = this.workspace.newBlock('basic_block');
@@ -381,16 +404,19 @@ suite('Navigation', function() {
 
     test('Mark', function() {
       this.workspace.getCursor().setCurNode(
-          Blockly.ASTNode.createConnectionNode(this.basicBlock.previousConnection));
+          Blockly.ASTNode.createConnectionNode(
+              this.basicBlock.previousConnection));
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
       const enterEvent = createKeyDownEvent(Blockly.utils.KeyCodes.ENTER, '');
 
       Blockly.onKeyDown(enterEvent);
 
-      const markedNode = this.workspace.getMarker(this.navigation.MARKER_NAME).getCurNode();
+      const markedNode =
+          this.workspace.getMarker(this.navigation.MARKER_NAME).getCurNode();
       chai.assert.isTrue(keyDownSpy.returned(true));
-      chai.assert.equal(markedNode.getLocation(), this.basicBlock.previousConnection);
+      chai.assert.equal(
+          markedNode.getLocation(), this.basicBlock.previousConnection);
       chai.assert.equal(
           this.navigation.getState(this.workspace), Constants.State.WORKSPACE);
     });
@@ -430,7 +456,8 @@ suite('Navigation', function() {
           },
         ],
       }]);
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -451,7 +478,8 @@ suite('Navigation', function() {
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.N, '');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
-      this.workspace.getCursor().setCurNode(Blockly.ASTNode.createFieldNode(field));
+      this.workspace.getCursor().setCurNode(
+          Blockly.ASTNode.createFieldNode(field));
 
       Blockly.onKeyDown(mockEvent);
 
@@ -466,7 +494,8 @@ suite('Navigation', function() {
       const fieldSpy = sinon.stub(field, 'onShortcut').returns(true);
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
-      this.workspace.getCursor().setCurNode(Blockly.ASTNode.createFieldNode(field));
+      this.workspace.getCursor().setCurNode(
+          Blockly.ASTNode.createFieldNode(field));
 
       Blockly.onKeyDown(mockEvent);
 
@@ -481,7 +510,8 @@ suite('Navigation', function() {
       const fieldSpy = sinon.spy(field, 'onShortcut');
       const keyDownSpy =
           sinon.spy(Blockly.ShortcutRegistry.registry, 'onKeyDown');
-      this.workspace.getCursor().setCurNode(Blockly.ASTNode.createFieldNode(field));
+      this.workspace.getCursor().setCurNode(
+          Blockly.ASTNode.createFieldNode(field));
 
       Blockly.onKeyDown(mockEvent);
 
@@ -544,8 +574,8 @@ suite('Navigation', function() {
           'tooltip': '',
           'helpUrl': '',
         }]);
-        this.workspace = createNavigationWorkspace(
-            defaultRegister.navigation_, true, true);
+        this.workspace =
+            createNavigationWorkspace(defaultRegister.navigation_, true, true);
 
         Blockly.mainWorkspace = this.workspace;
         this.workspace.getCursor().drawer_ = null;
@@ -613,7 +643,8 @@ suite('Navigation', function() {
         'nextStatement': null,
       }]);
 
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -633,7 +664,8 @@ suite('Navigation', function() {
     test('Insert from flyout with a valid connection marked', function() {
       const previousConnection = this.basicBlock.previousConnection;
       const prevNode = Blockly.ASTNode.createConnectionNode(previousConnection);
-      this.workspace.getMarker(this.navigation.MARKER_NAME).setCurNode(prevNode);
+      this.workspace.getMarker(this.navigation.MARKER_NAME)
+          .setCurNode(prevNode);
 
       this.navigation.focusToolbox(this.workspace);
       this.navigation.focusFlyout(this.workspace);
@@ -642,8 +674,8 @@ suite('Navigation', function() {
       const insertedBlock = this.basicBlock.previousConnection.targetBlock();
 
       chai.assert.isTrue(insertedBlock !== null);
-      chai.assert.equal(this.navigation.getState(this.workspace),
-          Constants.State.WORKSPACE);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.WORKSPACE);
     });
 
     test('Insert Block from flyout without marking a connection', function() {
@@ -659,15 +691,15 @@ suite('Navigation', function() {
 
       // Make sure that the block was added to the workspace
       chai.assert.equal(numBlocks, 3);
-      chai.assert.equal(this.navigation.getState(this.workspace),
-          Constants.State.WORKSPACE);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.WORKSPACE);
     });
 
     test('Connect two blocks that are on the workspace', function() {
       const targetNode = Blockly.ASTNode.createConnectionNode(
           this.basicBlock.previousConnection);
-      const sourceNode = Blockly.ASTNode.createConnectionNode(
-          this.basicBlock2.nextConnection);
+      const sourceNode =
+          Blockly.ASTNode.createConnectionNode(this.basicBlock2.nextConnection);
 
       this.navigation.modify(this.workspace, targetNode, sourceNode);
       const insertedBlock = this.basicBlock.previousConnection.targetBlock();
@@ -677,32 +709,35 @@ suite('Navigation', function() {
   });
   suite('Connect Blocks', function() {
     setup(function() {
-      Blockly.defineBlocksWithJsonArray([{
-        'type': 'basic_block',
-        'message0': '',
-        'previousStatement': null,
-        'nextStatement': null,
-      },
-      {
-        'type': 'inline_block',
-        'message0': '%1 %2',
-        'args0': [
-          {
-            'type': 'input_value',
-            'name': 'NAME',
-          },
-          {
-            'type': 'input_value',
-            'name': 'NAME',
-          },
-        ],
-        'inputsInline': true,
-        'output': null,
-        'tooltip': '',
-        'helpUrl': '',
-      }]);
+      Blockly.defineBlocksWithJsonArray([
+        {
+          'type': 'basic_block',
+          'message0': '',
+          'previousStatement': null,
+          'nextStatement': null,
+        },
+        {
+          'type': 'inline_block',
+          'message0': '%1 %2',
+          'args0': [
+            {
+              'type': 'input_value',
+              'name': 'NAME',
+            },
+            {
+              'type': 'input_value',
+              'name': 'NAME',
+            },
+          ],
+          'inputsInline': true,
+          'output': null,
+          'tooltip': '',
+          'helpUrl': '',
+        }
+      ]);
 
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -725,11 +760,14 @@ suite('Navigation', function() {
       this.inlineBlock2 = inlineBlock2;
       this.inlineBlock3 = inlineBlock3;
 
-      this.basicBlock.nextConnection.connect(this.basicBlock2.previousConnection);
+      this.basicBlock.nextConnection.connect(
+          this.basicBlock2.previousConnection);
 
-      this.basicBlock3.nextConnection.connect(this.basicBlock4.previousConnection);
+      this.basicBlock3.nextConnection.connect(
+          this.basicBlock4.previousConnection);
 
-      this.inlineBlock1.inputList[0].connection.connect(this.inlineBlock2.outputConnection);
+      this.inlineBlock1.inputList[0].connection.connect(
+          this.inlineBlock2.outputConnection);
     });
 
     teardown(function() {
@@ -745,8 +783,10 @@ suite('Navigation', function() {
 
       this.navigation.connect_(cursorLocation, markedLocation);
 
-      chai.assert.equal(this.basicBlock.nextConnection.targetBlock(), this.basicBlock3);
-      chai.assert.equal(this.basicBlock2.previousConnection.targetBlock(), this.basicBlock4);
+      chai.assert.equal(
+          this.basicBlock.nextConnection.targetBlock(), this.basicBlock3);
+      chai.assert.equal(
+          this.basicBlock2.previousConnection.targetBlock(), this.basicBlock4);
     });
 
     test('Connect marker on previous into stack', function() {
@@ -755,8 +795,10 @@ suite('Navigation', function() {
 
       this.navigation.connect_(cursorLocation, markedLocation);
 
-      chai.assert.equal(this.basicBlock.nextConnection.targetBlock(), this.basicBlock3);
-      chai.assert.equal(this.basicBlock2.previousConnection.targetBlock(), this.basicBlock4);
+      chai.assert.equal(
+          this.basicBlock.nextConnection.targetBlock(), this.basicBlock3);
+      chai.assert.equal(
+          this.basicBlock2.previousConnection.targetBlock(), this.basicBlock4);
     });
 
     test('Connect cursor on next into stack', function() {
@@ -765,7 +807,8 @@ suite('Navigation', function() {
 
       this.navigation.connect_(cursorLocation, markedLocation);
 
-      chai.assert.equal(this.basicBlock.nextConnection.targetBlock(), this.basicBlock4);
+      chai.assert.equal(
+          this.basicBlock.nextConnection.targetBlock(), this.basicBlock4);
       chai.assert.isNull(this.basicBlock3.nextConnection.targetConnection);
     });
 
@@ -775,7 +818,8 @@ suite('Navigation', function() {
 
       this.navigation.connect_(cursorLocation, markedLocation);
 
-      chai.assert.equal(this.basicBlock3.previousConnection.targetBlock(), this.basicBlock2);
+      chai.assert.equal(
+          this.basicBlock3.previousConnection.targetBlock(), this.basicBlock2);
     });
 
     test('Try to connect input that is descendant of output', function() {
@@ -785,18 +829,21 @@ suite('Navigation', function() {
       this.navigation.connect_(cursorLocation, markedLocation);
 
       chai.assert.isNull(this.inlineBlock2.outputConnection.targetBlock());
-      chai.assert.equal(this.inlineBlock1.outputConnection.targetBlock(), this.inlineBlock2);
+      chai.assert.equal(
+          this.inlineBlock1.outputConnection.targetBlock(), this.inlineBlock2);
     });
     test('Do not connect a shadow block', function() {
       this.inlineBlock2.setShadow(true);
 
       const markedLocation = this.inlineBlock2.outputConnection;
       const cursorLocation = this.inlineBlock3.inputList[0].connection;
-      console.log("IN HERE");
-      const didConnect = this.navigation.connect_(cursorLocation, markedLocation);
+      console.log('IN HERE');
+      const didConnect =
+          this.navigation.connect_(cursorLocation, markedLocation);
       chai.assert.isFalse(didConnect);
       // chai.assert.isNull(this.inlineBlock2.outputConnection.targetBlock());
-      // chai.assert.equal(this.inlineBlock1.outputConnection.targetBlock(), this.inlineBlock2);
+      // chai.assert.equal(this.inlineBlock1.outputConnection.targetBlock(),
+      // this.inlineBlock2);
     });
   });
 
@@ -808,7 +855,8 @@ suite('Navigation', function() {
         'previousStatement': null,
         'nextStatement': null,
       }]);
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
 
@@ -823,14 +871,16 @@ suite('Navigation', function() {
     });
 
     test('Delete block - has parent ', function() {
-      this.basicBlockA.nextConnection.connect(this.basicBlockB.previousConnection);
+      this.basicBlockA.nextConnection.connect(
+          this.basicBlockB.previousConnection);
       const astNode = Blockly.ASTNode.createBlockNode(this.basicBlockB);
       // Set the cursor to be on the child block
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the child block
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, '');
       Blockly.onKeyDown(mockEvent);
-      chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
+      chai.assert.equal(
+          this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.NEXT);
     });
 
@@ -841,12 +891,14 @@ suite('Navigation', function() {
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, '');
       Blockly.onKeyDown(mockEvent);
 
-      chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
+      chai.assert.equal(
+          this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.WORKSPACE);
     });
 
     test('Delete parent block', function() {
-      this.basicBlockA.nextConnection.connect(this.basicBlockB.previousConnection);
+      this.basicBlockA.nextConnection.connect(
+          this.basicBlockB.previousConnection);
       const astNode = Blockly.ASTNode.createBlockNode(this.basicBlockB);
       const mockDeleteBlockEvent = {
         'blockId': this.basicBlockA,
@@ -858,13 +910,16 @@ suite('Navigation', function() {
       // Set the cursor to be on the child block
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the parent block
-      this.navigation.handleBlockDeleteByDrag_(this.workspace, mockDeleteBlockEvent);
-      chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
+      this.navigation.handleBlockDeleteByDrag_(
+          this.workspace, mockDeleteBlockEvent);
+      chai.assert.equal(
+          this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.WORKSPACE);
     });
 
     test('Delete top block in stack', function() {
-      this.basicBlockA.nextConnection.connect(this.basicBlockB.previousConnection);
+      this.basicBlockA.nextConnection.connect(
+          this.basicBlockB.previousConnection);
       const astNode = Blockly.ASTNode.createStackNode(this.basicBlockA);
       const mockDeleteBlockEvent = {
         'blockId': this.basicBlockA.id,
@@ -876,8 +931,10 @@ suite('Navigation', function() {
       // Set the cursor to be on the stack
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the top block in the stack
-      this.navigation.handleBlockDeleteByDrag_(this.workspace, mockDeleteBlockEvent);
-      chai.assert.equal(this.workspace.getCursor().getCurNode().getType(),
+      this.navigation.handleBlockDeleteByDrag_(
+          this.workspace, mockDeleteBlockEvent);
+      chai.assert.equal(
+          this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.WORKSPACE);
     });
   });
@@ -890,7 +947,8 @@ suite('Navigation', function() {
         'previousStatement': null,
         'nextStatement': null,
       }]);
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       defaultRegister.addWorkspace(this.workspace);
       this.navigation = defaultRegister.navigation_;
       this.workspaceChangeListener = this.navigation.wsChangeWrapper_;
@@ -910,11 +968,12 @@ suite('Navigation', function() {
         workspaceId: this.workspace.id,
       };
       const cursor = this.workspace.getCursor();
-      const nextNode = Blockly.ASTNode.createConnectionNode(
-          this.basicBlockA.nextConnection);
+      const nextNode =
+          Blockly.ASTNode.createConnectionNode(this.basicBlockA.nextConnection);
       cursor.setCurNode(nextNode);
       this.workspaceChangeListener(e);
-      chai.assert.equal(cursor.getCurNode().getType(), Blockly.ASTNode.types.BLOCK);
+      chai.assert.equal(
+          cursor.getCurNode().getType(), Blockly.ASTNode.types.BLOCK);
     });
     test('Handle workspace click', function() {
       const e = {
@@ -922,13 +981,13 @@ suite('Navigation', function() {
         workspaceId: this.workspace.id,
       };
       this.navigation.focusFlyout(this.workspace);
-      chai.assert.equal(this.navigation.getState(
-          this.workspace), Constants.State.FLYOUT);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.FLYOUT);
 
       this.workspaceChangeListener(e);
 
-      chai.assert.equal(this.navigation.getState(
-          this.workspace), Constants.State.WORKSPACE);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.WORKSPACE);
     });
     test('Focus toolbox if category clicked', function() {
       const e = {
@@ -939,14 +998,14 @@ suite('Navigation', function() {
       const toolboxFocusStub = sinon.spy(this.navigation, 'focusToolbox');
 
       this.navigation.focusWorkspace(this.workspace);
-      chai.assert.equal(this.navigation.getState(
-          this.workspace), Constants.State.WORKSPACE);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.WORKSPACE);
 
       this.workspaceChangeListener(e);
 
       sinon.assert.calledOnce(toolboxFocusStub);
-      chai.assert.equal(this.navigation.getState(
-          this.workspace), Constants.State.TOOLBOX);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.TOOLBOX);
     });
     test('Focus workspace if toolbox is unselected', function() {
       const e = {
@@ -960,8 +1019,8 @@ suite('Navigation', function() {
       this.workspaceChangeListener(e);
 
       sinon.assert.calledOnce(resetFlyoutStub);
-      chai.assert.equal(this.navigation.getState(
-          this.workspace), Constants.State.WORKSPACE);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.WORKSPACE);
     });
     test('Focus workspace when block created on workspace', function() {
       const e = {
@@ -975,8 +1034,8 @@ suite('Navigation', function() {
       this.workspaceChangeListener(e);
 
       sinon.assert.calledOnce(resetFlyoutStub);
-      chai.assert.equal(this.navigation.getState(
-          this.workspace), Constants.State.WORKSPACE);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.WORKSPACE);
     });
   });
 
@@ -988,7 +1047,8 @@ suite('Navigation', function() {
         'previousStatement': null,
         'nextStatement': null,
       }]);
-      this.workspace = createNavigationWorkspace(defaultRegister.navigation_, true);
+      this.workspace =
+          createNavigationWorkspace(defaultRegister.navigation_, true);
       this.navigation = defaultRegister.navigation_;
       this.flyoutChangeListener = this.navigation.flyoutChangeWrapper_;
       this.basicBlockA = this.workspace.newBlock('basic_block');
@@ -1018,8 +1078,10 @@ suite('Navigation', function() {
 
       this.flyoutChangeListener(e);
 
-      chai.assert.equal(flyoutCursor.getCurNode().getType(), Blockly.ASTNode.types.STACK);
-      chai.assert.equal(this.navigation.getState(this.workspace), Constants.State.FLYOUT);
+      chai.assert.equal(
+          flyoutCursor.getCurNode().getType(), Blockly.ASTNode.types.STACK);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.FLYOUT);
     });
     test('Handle block click in flyout - select event', function() {
       const flyout = this.workspace.getFlyout();
@@ -1035,8 +1097,10 @@ suite('Navigation', function() {
 
       this.flyoutChangeListener(e);
 
-      chai.assert.equal(flyoutCursor.getCurNode().getType(), Blockly.ASTNode.types.STACK);
-      chai.assert.equal(this.navigation.getState(this.workspace), Constants.State.FLYOUT);
+      chai.assert.equal(
+          flyoutCursor.getCurNode().getType(), Blockly.ASTNode.types.STACK);
+      chai.assert.equal(
+          this.navigation.getState(this.workspace), Constants.State.FLYOUT);
     });
   });
 });

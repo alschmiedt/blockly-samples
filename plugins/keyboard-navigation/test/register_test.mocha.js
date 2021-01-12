@@ -4,11 +4,13 @@ const sinon = require('sinon');
 const Blockly = require('blockly/node');
 
 const {defaultRegister, Constants} = require('../src/index');
-const {createNavigationWorkspace, createKeyDownEvent} = require('./test_helper');
+const {createNavigationWorkspace, createKeyDownEvent} =
+    require('./test_helper');
 
 suite('Register', function() {
   /**
-   * Creates a test for not running keyDown events when the workspace is in read only mode.
+   * Creates a test for not running keyDown events when the workspace is in read
+   * only mode.
    * @param {Object} keyEvent Mocked key down event. Use createKeyDownEvent.
    * @param {string=} opt_name An optional name for the test case.
    */
@@ -39,7 +41,8 @@ suite('Register', function() {
   }
 
   /**
-   * Creates a test for not running a shortcut when a the cursor is not on a block.
+   * Creates a test for not running a shortcut when a the cursor is not on a
+   * block.
    * @param {string} testCaseName The name of the test case.
    * @param {Object} keyEvent Mocked key down event. Use createKeyDownEvent.
    */
@@ -70,7 +73,8 @@ suite('Register', function() {
   }
 
   /**
-   * Creates a test for not running a shortcut when the cursor is not on a block.
+   * Creates a test for not running a shortcut when the cursor is not on a
+   * block.
    * @param {string} testCaseName The name of the test case.
    * @param {Object} keyEvent Mocked key down event. Use createKeyDownEvent.
    */
@@ -86,7 +90,7 @@ suite('Register', function() {
 
   setup(function() {
     this.jsdomCleanup =
-      require('jsdom-global')('<!DOCTYPE html><div id="blocklyDiv"></div>');
+        require('jsdom-global')('<!DOCTYPE html><div id="blocklyDiv"></div>');
     Blockly.utils.dom.getFastTextWidthWithSizeString = function() {
       return 10;
     };
@@ -115,9 +119,23 @@ suite('Register', function() {
       sinon.restore();
     });
     const testCases = [
-      ['Control C', createKeyDownEvent(Blockly.utils.KeyCodes.C, 'NotAField', [Blockly.utils.KeyCodes.CTRL])],
-      ['Meta C', createKeyDownEvent(Blockly.utils.KeyCodes.C, 'NotAField', [Blockly.utils.KeyCodes.META])],
-      ['Alt C', createKeyDownEvent(Blockly.utils.KeyCodes.C, 'NotAField', [Blockly.utils.KeyCodes.ALT])],
+      [
+        'Control C',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.C, 'NotAField',
+            [Blockly.utils.KeyCodes.CTRL])
+      ],
+      [
+        'Meta C',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.C, 'NotAField',
+            [Blockly.utils.KeyCodes.META])
+      ],
+      [
+        'Alt C',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.C, 'NotAField', [Blockly.utils.KeyCodes.ALT])
+      ],
     ];
 
     // Copy a block.
@@ -207,8 +225,13 @@ suite('Register', function() {
     });
 
     const testCases = [
-      ['Delete', createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, 'NotAField')],
-      ['Backspace', createKeyDownEvent(Blockly.utils.KeyCodes.BACKSPACE, 'NotAField')],
+      [
+        'Delete', createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, 'NotAField')
+      ],
+      [
+        'Backspace',
+        createKeyDownEvent(Blockly.utils.KeyCodes.BACKSPACE, 'NotAField')
+      ],
     ];
     // Delete a block.
     suite('Simple', function() {
@@ -217,7 +240,8 @@ suite('Register', function() {
         const keyEvent = testCase[1];
         test(testCaseName, function() {
           const deleteSpy = sinon.spy(Blockly, 'deleteBlock');
-          const moveCursorSpy = sinon.spy(this.navigation, 'moveCursorOnBlockDelete');
+          const moveCursorSpy =
+              sinon.spy(this.navigation, 'moveCursorOnBlockDelete');
           Blockly.onKeyDown(keyEvent);
           sinon.assert.calledOnce(moveCursorSpy);
           sinon.assert.calledOnce(deleteSpy);
@@ -236,9 +260,23 @@ suite('Register', function() {
 
   suite('Cut', function() {
     const testCases = [
-      ['Control X', createKeyDownEvent(Blockly.utils.KeyCodes.X, 'NotAField', [Blockly.utils.KeyCodes.CTRL])],
-      ['Meta X', createKeyDownEvent(Blockly.utils.KeyCodes.X, 'NotAField', [Blockly.utils.KeyCodes.META])],
-      ['Alt X', createKeyDownEvent(Blockly.utils.KeyCodes.X, 'NotAField', [Blockly.utils.KeyCodes.ALT])],
+      [
+        'Control X',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.X, 'NotAField',
+            [Blockly.utils.KeyCodes.CTRL])
+      ],
+      [
+        'Meta X',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.X, 'NotAField',
+            [Blockly.utils.KeyCodes.META])
+      ],
+      [
+        'Alt X',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.X, 'NotAField', [Blockly.utils.KeyCodes.ALT])
+      ],
     ];
 
     teardown(function() {
@@ -257,7 +295,8 @@ suite('Register', function() {
         test(testCaseName, function() {
           const deleteSpy = sinon.spy(Blockly, 'deleteBlock');
           const copySpy = sinon.spy(Blockly, 'copy');
-          const moveCursorSpy = sinon.spy(this.navigation, 'moveCursorOnBlockDelete');
+          const moveCursorSpy =
+              sinon.spy(this.navigation, 'moveCursorOnBlockDelete');
           Blockly.onKeyDown(keyEvent);
           sinon.assert.calledOnce(copySpy);
           sinon.assert.calledOnce(deleteSpy);
@@ -324,9 +363,23 @@ suite('Register', function() {
 
   suite('Paste', function() {
     const testCases = [
-      ['Control X', createKeyDownEvent(Blockly.utils.KeyCodes.V, 'NotAField', [Blockly.utils.KeyCodes.CTRL])],
-      ['Meta X', createKeyDownEvent(Blockly.utils.KeyCodes.V, 'NotAField', [Blockly.utils.KeyCodes.META])],
-      ['Alt X', createKeyDownEvent(Blockly.utils.KeyCodes.V, 'NotAField', [Blockly.utils.KeyCodes.ALT])],
+      [
+        'Control X',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.V, 'NotAField',
+            [Blockly.utils.KeyCodes.CTRL])
+      ],
+      [
+        'Meta X',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.V, 'NotAField',
+            [Blockly.utils.KeyCodes.META])
+      ],
+      [
+        'Alt X',
+        createKeyDownEvent(
+            Blockly.utils.KeyCodes.V, 'NotAField', [Blockly.utils.KeyCodes.ALT])
+      ],
     ];
 
     teardown(function() {

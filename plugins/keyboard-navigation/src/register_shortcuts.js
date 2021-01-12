@@ -10,15 +10,18 @@
  * @author aschmiedt@google.com (Abby Schmiedt)
  */
 
-import {AddOnShortcut} from './add_on_shortcut';
+import '../src/gesture_monkey_patch';
+
 import * as Blockly from 'blockly/core';
+
+import {AddOnShortcut} from './add_on_shortcut';
 import * as Constants from './constants';
 import {Navigation} from './navigation';
-import '../src/gesture_monkey_patch';
 
 /**
  * Class for registering shortcuts for keyboard navigation.
- * TODO: I don't think this is a singleton anymore? Or shoudl be a singelton anymore?
+ * TODO: I don't think this is a singleton anymore? Or shoudl be a singelton
+ * anymore?
  */
 export class Register {
   /**
@@ -98,7 +101,8 @@ export class Register {
             return isHandled;
           case Constants.State.TOOLBOX:
             return toolbox && typeof toolbox.onShortcut == 'function' ?
-                toolbox.onShortcut(action) : false;
+                toolbox.onShortcut(action) :
+                false;
           default:
             return false;
         }
@@ -152,8 +156,8 @@ export class Register {
 
     Blockly.ShortcutRegistry.registry.register(toggleKeyboardNavShortcut);
     const ctrlShiftK = Blockly.ShortcutRegistry.registry.createSerializedKey(
-        Blockly.utils.KeyCodes.K, [Blockly.utils.KeyCodes.CTRL,
-          Blockly.utils.KeyCodes.SHIFT]);
+        Blockly.utils.KeyCodes.K,
+        [Blockly.utils.KeyCodes.CTRL, Blockly.utils.KeyCodes.SHIFT]);
     Blockly.ShortcutRegistry.registry.addKeyMapping(
         ctrlShiftK, toggleKeyboardNavShortcut.name);
   }
@@ -186,7 +190,8 @@ export class Register {
             return true;
           case Constants.State.TOOLBOX:
             return toolbox && typeof toolbox.onShortcut == 'function' ?
-                toolbox.onShortcut(action) : false;
+                toolbox.onShortcut(action) :
+                false;
           default:
             return false;
         }
@@ -231,7 +236,8 @@ export class Register {
             return isHandled;
           case Constants.State.TOOLBOX:
             return toolbox && typeof toolbox.onShortcut == 'function' ?
-                toolbox.onShortcut(action) : false;
+                toolbox.onShortcut(action) :
+                false;
           default:
             return false;
         }
@@ -267,9 +273,9 @@ export class Register {
             }
             return isHandled;
           case Constants.State.TOOLBOX:
-            isHandled = toolbox &&
-              typeof toolbox.onShortcut == 'function' ?
-                toolbox.onShortcut(action) : false;
+            isHandled = toolbox && typeof toolbox.onShortcut == 'function' ?
+                toolbox.onShortcut(action) :
+                false;
             if (!isHandled) {
               this.navigation_.focusFlyout(workspace);
             }
@@ -553,10 +559,8 @@ export class Register {
           const curNode = workspace.getCursor().getCurNode();
           if (curNode && curNode.getSourceBlock()) {
             const sourceBlock = curNode.getSourceBlock();
-            return !Blockly.Gesture.inProgress() &&
-                sourceBlock &&
-                sourceBlock.isDeletable() &&
-                sourceBlock.isMovable();
+            return !Blockly.Gesture.inProgress() && sourceBlock &&
+                sourceBlock.isDeletable() && sourceBlock.isMovable();
           }
         }
         return false;
@@ -583,7 +587,7 @@ export class Register {
     const metaC = Blockly.ShortcutRegistry.registry.createSerializedKey(
         Blockly.utils.KeyCodes.C, [Blockly.utils.KeyCodes.META]);
     Blockly.ShortcutRegistry.registry.addKeyMapping(
-        metaC, copyShortcut.name,true);
+        metaC, copyShortcut.name, true);
   }
 
   /**
@@ -596,8 +600,7 @@ export class Register {
       name: Constants.ShortcutNames.PASTE,
       preconditionFn: (workspace) => {
         return workspace.keyboardAccessibilityMode &&
-            !workspace.options.readOnly &&
-            !Blockly.Gesture.inProgress();
+            !workspace.options.readOnly && !Blockly.Gesture.inProgress();
       },
       callback: () => {
         return this.navigation_.paste();
@@ -637,10 +640,8 @@ export class Register {
           const curNode = workspace.getCursor().getCurNode();
           if (curNode && curNode.getSourceBlock()) {
             const sourceBlock = curNode.getSourceBlock();
-            return !Blockly.Gesture.inProgress() &&
-                sourceBlock &&
-                sourceBlock.isDeletable() &&
-                sourceBlock.isMovable() &&
+            return !Blockly.Gesture.inProgress() && sourceBlock &&
+                sourceBlock.isDeletable() && sourceBlock.isMovable() &&
                 !sourceBlock.workspace.isFlyout;
           }
         }
@@ -688,8 +689,7 @@ export class Register {
           const curNode = workspace.getCursor().getCurNode();
           if (curNode && curNode.getSourceBlock()) {
             const sourceBlock = curNode.getSourceBlock();
-            return sourceBlock &&
-                sourceBlock.isDeletable();
+            return sourceBlock && sourceBlock.isDeletable();
           }
         }
         return false;

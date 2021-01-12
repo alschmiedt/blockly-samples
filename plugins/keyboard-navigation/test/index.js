@@ -8,9 +8,11 @@
  * @fileoverview Plugin test.
  */
 
+import {createPlayground, toolboxCategories} from '@blockly/dev-tools';
 import * as Blockly from 'blockly';
-import {toolboxCategories, createPlayground} from '@blockly/dev-tools';
-import {Register, LineCursorPluginInfo} from '../src/index.js';
+
+import {LineCursorPluginInfo, Register} from '../src/index.js';
+
 import {TestNavigation} from './test_navigation';
 import {TestToolbox} from './test_toolbox';
 
@@ -35,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const defaultOptions = {
     toolbox: toolboxCategories,
   };
-  createPlayground(document.getElementById('root'), createWorkspace,
-      defaultOptions);
+  createPlayground(
+      document.getElementById('root'), createWorkspace, defaultOptions);
 });
-

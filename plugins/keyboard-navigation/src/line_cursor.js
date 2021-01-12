@@ -23,7 +23,6 @@ import * as Blockly from 'blockly/core';
  * @extends {Blockly.BasicCursor}
  */
 export class LineCursor extends Blockly.BasicCursor {
-
   /**
    * Constructor for a line cursor.
    */
@@ -45,8 +44,9 @@ export class LineCursor extends Blockly.BasicCursor {
     let newNode = this.getNextNode_(curNode, this.validLineNode_);
 
     // Skip the input or next value if there is a connected block.
-    if (newNode && (newNode.getType() == Blockly.ASTNode.types.INPUT ||
-        newNode.getType() == Blockly.ASTNode.types.NEXT) &&
+    if (newNode &&
+        (newNode.getType() == Blockly.ASTNode.types.INPUT ||
+         newNode.getType() == Blockly.ASTNode.types.NEXT) &&
         newNode.getLocation().targetBlock()) {
       newNode = this.getNextNode_(newNode, this.validLineNode_);
     }
@@ -89,9 +89,10 @@ export class LineCursor extends Blockly.BasicCursor {
     }
     let newNode = this.getPreviousNode_(curNode, this.validLineNode_);
 
-    if (newNode && (newNode.getType() == Blockly.ASTNode.types.INPUT ||
-      newNode.getType() == Blockly.ASTNode.types.NEXT) &&
-      newNode.getLocation().targetBlock()) {
+    if (newNode &&
+        (newNode.getType() == Blockly.ASTNode.types.INPUT ||
+         newNode.getType() == Blockly.ASTNode.types.NEXT) &&
+        newNode.getLocation().targetBlock()) {
       newNode = this.getPreviousNode_(newNode, this.validLineNode_);
     }
 
@@ -139,7 +140,8 @@ export class LineCursor extends Blockly.BasicCursor {
       if (location.outputConnection === null) {
         isValid = true;
       }
-    } else if (type == Blockly.ASTNode.types.INPUT &&
+    } else if (
+        type == Blockly.ASTNode.types.INPUT &&
         location.type == Blockly.NEXT_STATEMENT) {
       isValid = true;
     } else if (type == Blockly.ASTNode.types.NEXT) {
@@ -163,7 +165,8 @@ export class LineCursor extends Blockly.BasicCursor {
     const type = node && node.getType();
     if (type == Blockly.ASTNode.types.FIELD) {
       isValid = true;
-    } else if (type == Blockly.ASTNode.types.INPUT &&
+    } else if (
+        type == Blockly.ASTNode.types.INPUT &&
         location.type == Blockly.INPUT_VALUE) {
       isValid = true;
     }

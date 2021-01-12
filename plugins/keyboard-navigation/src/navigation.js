@@ -106,8 +106,8 @@ export class Navigation {
   addWorkspace(workspace) {
     this.workspaces.push(workspace);
     const flyout = workspace.getFlyout();
-    workspace.getMarkerManager().registerMarker(this.MARKER_NAME,
-        new Blockly.Marker());
+    workspace.getMarkerManager().registerMarker(
+        this.MARKER_NAME, new Blockly.Marker());
     workspace.addChangeListener(this.wsChangeWrapper_);
 
     if (flyout) {
@@ -274,8 +274,8 @@ export class Navigation {
     const curNode = cursor.getCurNode();
     const sourceBlock = curNode.getSourceBlock();
     if (sourceBlock.id === deletedBlockId || ids.indexOf(sourceBlock.id) > -1) {
-      cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(workspace,
-          this.WS_COORDINATE_ON_DELETE));
+      cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(
+          workspace, this.WS_COORDINATE_ON_DELETE));
     }
   }
 
@@ -293,8 +293,8 @@ export class Navigation {
     if (block.isShadow()) {
       block = block.getParent();
     }
-    this.getFlyoutCursor_(mainWorkspace).setCurNode(
-        Blockly.ASTNode.createStackNode(block));
+    this.getFlyoutCursor_(mainWorkspace)
+        .setCurNode(Blockly.ASTNode.createStackNode(block));
     this.setState(mainWorkspace, Constants.State.FLYOUT);
   }
 
@@ -318,23 +318,22 @@ export class Navigation {
     if (block === deletedBlock) {
       // If the block has a parent move the cursor to their connection point.
       if (block.getParent()) {
-        const topConnection = block.previousConnection ||
-            block.outputConnection;
+        const topConnection =
+            block.previousConnection || block.outputConnection;
         if (topConnection) {
-          cursor.setCurNode(
-              Blockly.ASTNode.createConnectionNode(
-                  topConnection.targetConnection));
+          cursor.setCurNode(Blockly.ASTNode.createConnectionNode(
+              topConnection.targetConnection));
         }
       } else {
         // If the block is by itself move the cursor to the workspace.
-        cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(block.workspace,
-            block.getRelativeToSurfaceXY()));
+        cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(
+            block.workspace, block.getRelativeToSurfaceXY()));
       }
-    // If the cursor is on a block whose parent is being deleted, move the
-    // cursor to the workspace.
+      // If the cursor is on a block whose parent is being deleted, move the
+      // cursor to the workspace.
     } else if (block && deletedBlock.getChildren(false).indexOf(block) > -1) {
-      cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(block.workspace,
-          block.getRelativeToSurfaceXY()));
+      cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(
+          block.workspace, block.getRelativeToSurfaceXY()));
     }
   }
 
@@ -488,8 +487,8 @@ export class Navigation {
       return;
     }
     const markerNode = this.getMarker_(workspace).getCurNode();
-    if (!this.modify(workspace, markerNode,
-        Blockly.ASTNode.createBlockNode(newBlock))) {
+    if (!this.modify(
+            workspace, markerNode, Blockly.ASTNode.createBlockNode(newBlock))) {
       this.warn_(
           'Something went wrong while inserting a block from the flyout.');
     }
@@ -509,13 +508,14 @@ export class Navigation {
   createNewBlock_(workspace) {
     const flyout = workspace.getFlyout();
     if (!flyout || !flyout.isVisible()) {
-      this.warn_('Trying to insert from the flyout when the flyout does not ' +
-        ' exist or is not visible');
+      this.warn_(
+          'Trying to insert from the flyout when the flyout does not ' +
+          ' exist or is not visible');
       return null;
     }
 
     const curBlock = /** @type {!Blockly.BlockSvg} */ (
-      this.getFlyoutCursor_(workspace).getCurNode().getLocation());
+        this.getFlyoutCursor_(workspace).getCurNode().getLocation());
     if (!curBlock.isEnabled()) {
       this.warn_('Can\'t insert a disabled block.');
       return null;
@@ -585,16 +585,17 @@ export class Navigation {
 
     if (markerNode.isConnection() && cursorNode.isConnection()) {
       const cursorConnection =
-      /** @type {!Blockly.RenderedConnection} */ (cursorLoc);
+          /** @type {!Blockly.RenderedConnection} */ (cursorLoc);
       const markerConnection =
-      /** @type {!Blockly.RenderedConnection} */ (markerLoc);
+          /** @type {!Blockly.RenderedConnection} */ (markerLoc);
       return this.connect_(cursorConnection, markerConnection);
-    } else if (markerNode.isConnection() &&
+    } else if (
+        markerNode.isConnection() &&
         (cursorType == Blockly.ASTNode.types.BLOCK ||
-        cursorType == Blockly.ASTNode.types.STACK)) {
+         cursorType == Blockly.ASTNode.types.STACK)) {
       const cursorBlock = /** @type {!Blockly.BlockSvg} */ (cursorLoc);
       const markerConnection =
-      /** @type {!Blockly.RenderedConnection} */ (markerLoc);
+          /** @type {!Blockly.RenderedConnection} */ (markerLoc);
       return this.insertBlock_(cursorBlock, markerConnection);
     } else if (markerType == Blockly.ASTNode.types.WORKSPACE) {
       const block = cursorNode ? cursorNode.getSourceBlock() : null;
@@ -724,18 +725,20 @@ export class Navigation {
     if (movingInferior && destSuperior &&
         this.moveAndConnect_(movingInferior, destSuperior)) {
       return true;
-    // Try swapping the inferior and superior connections on the blocks.
-    } else if (movingSuperior && destInferior &&
+      // Try swapping the inferior and superior connections on the blocks.
+    } else if (
+        movingSuperior && destInferior &&
         this.moveAndConnect_(movingSuperior, destInferior)) {
-      console.log("AFTER");
+      console.log('AFTER');
       return true;
     } else if (this.moveAndConnect_(movingConnection, destConnection)) {
       return true;
     } else {
       const checker = movingConnection.getConnectionChecker();
-      const reason = checker.canConnectWithReason(
-          movingConnection, destConnection, false);
-      this.warn_('Connection failed with error: ' +
+      const reason =
+          checker.canConnectWithReason(movingConnection, destConnection, false);
+      this.warn_(
+          'Connection failed with error: ' +
           checker.getErrorMessage(reason, movingConnection, destConnection));
       return false;
     }
@@ -842,7 +845,7 @@ export class Navigation {
       case Blockly.OUTPUT_VALUE:
         for (let i = 0; i < block.inputList.length; i++) {
           const inputConnection = /** @type {Blockly.RenderedConnection} */ (
-            block.inputList[i].connection);
+              block.inputList[i].connection);
           if (inputConnection && inputConnection.type === Blockly.INPUT_VALUE &&
               this.connect_(inputConnection, destConnection)) {
             return true;
@@ -876,18 +879,18 @@ export class Navigation {
       return;
     }
     const curConnection =
-      /** @type {!Blockly.RenderedConnection} */ (curNode.getLocation());
+        /** @type {!Blockly.RenderedConnection} */ (curNode.getLocation());
     if (!curConnection.isConnected()) {
       this.log_('Cannot disconnect unconnected connection');
       return;
     }
-    const superiorConnection =
-        curConnection.isSuperior() ?
-            curConnection : curConnection.targetConnection;
+    const superiorConnection = curConnection.isSuperior() ?
+        curConnection :
+        curConnection.targetConnection;
 
-    const inferiorConnection =
-        curConnection.isSuperior() ?
-            curConnection.targetConnection : curConnection;
+    const inferiorConnection = curConnection.isSuperior() ?
+        curConnection.targetConnection :
+        curConnection;
 
     if (inferiorConnection.getSourceBlock().isShadow()) {
       this.log_('Cannot disconnect a shadow block');
@@ -1031,9 +1034,9 @@ export class Navigation {
     const curNode = cursor.getCurNode();
     const nodeType = curNode.getType();
     if (nodeType == Blockly.ASTNode.types.FIELD) {
-      (/** @type {!Blockly.Field} */(curNode.getLocation())).showEditor();
-    } else if (curNode.isConnection() ||
-        nodeType == Blockly.ASTNode.types.WORKSPACE) {
+      (/** @type {!Blockly.Field} */ (curNode.getLocation())).showEditor();
+    } else if (
+        curNode.isConnection() || nodeType == Blockly.ASTNode.types.WORKSPACE) {
       this.markAtCursor_(workspace);
     } else if (nodeType == Blockly.ASTNode.types.BLOCK) {
       this.warn_('Cannot mark a block.');
