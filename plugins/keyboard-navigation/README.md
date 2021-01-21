@@ -1,9 +1,11 @@
-# blockly-plugin-keyboard-navigation [![Built on Blockly](https://tinyurl.com/built-on-blockly)](https://github.com/google/blockly)
+lit# blockly-plugin-keyboard-navigation [![Built on Blockly](https://tinyurl.com/built-on-blockly)](https://github.com/google/blockly)
 
 <!--
   - TODO: Edit plugin description.
   -->
-A [Blockly](https://www.npmjs.com/package/blockly) plugin that ...
+A [Blockly](https://www.npmjs.com/package/blockly) plugin that adds keyboard
+navigation to Blockly. This allows users to use the keyboard to navigate the
+toolbox and the workspace using the keyboard.
 
 ## Installation
 

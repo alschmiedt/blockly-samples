@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -14,7 +14,7 @@ import * as Blockly from 'blockly/core';
 /**
  * Class for a flyout cursor.
  * This controls how a user navigates blocks in the flyout.
- * This cursor only allows a user to go to the previous or next location.
+ * This cursor only allows a user to go to the previous or next stack.
  * @constructor
  * @extends {Blockly.Cursor}
  */
@@ -27,7 +27,7 @@ export class FlyoutCursor extends Blockly.Cursor {
   }
 
   /**
-   * Find the next stack of blocks.
+   * Moves the cursor to the next stack of blocks in the flyout.
    * @return {Blockly.ASTNode} The next element, or null if the current node is
    *     not set or there is no next value.
    * @override
@@ -55,7 +55,7 @@ export class FlyoutCursor extends Blockly.Cursor {
   }
 
   /**
-   * Find the previous stack of blocks.
+   * Moves the cursor to the previous stack of blocks in the flyout.
    * @return {Blockly.ASTNode} The previous element, or null if the current node
    *     is not set or there is no previous value.
    * @override
@@ -83,8 +83,8 @@ export class FlyoutCursor extends Blockly.Cursor {
   }
 }
 
-export const registrationName = 'FlyoutCursor';
 export const registrationType = Blockly.registry.Type.CURSOR;
+export const registrationName = 'FlyoutCursor';
 
 Blockly.registry.register(registrationType, registrationName, FlyoutCursor);
 

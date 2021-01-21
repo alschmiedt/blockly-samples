@@ -6,10 +6,10 @@
 
 /**
  * @fileoverview The class representing a line cursor.
- * A line cursor traverses the blocks as if they were
- * lines of code in a text editor.
- * Previous and next go up and down lines. In and out go
- * through the elements in a line.
+ * A line cursor tries to traverse the blocks and connections on a block as if
+ * they were lines of code in a text editor. Previous and next traverse previous
+ * connections, next connections and blocks, while in and out traverse input
+ * connections and fields.
  * @author aschmiedt@google.com (Abby Schmiedt)
  */
 
@@ -17,8 +17,6 @@ import * as Blockly from 'blockly/core';
 
 /**
  * Class for a line cursor.
- * This will allow the user to get to all nodes in the AST by hitting next or
- * previous.
  * @constructor
  * @extends {Blockly.BasicCursor}
  */
@@ -31,7 +29,8 @@ export class LineCursor extends Blockly.BasicCursor {
   }
 
   /**
-   * Find the next node in the pre order traversal.
+   * Moves the cursor to the next previous connection, next connection or block
+   * in the pre order traversal. Finds the next node in the pre order traversal.
    * @return {Blockly.ASTNode} The next node, or null if the current node is
    *     not set or there is no next value.
    * @override
@@ -41,14 +40,14 @@ export class LineCursor extends Blockly.BasicCursor {
     if (!curNode) {
       return null;
     }
-    let newNode = this.getNextNode_(curNode, this.validLineNode_);
+    let newNode = this.getNextNode_(curNode, this.validLineNode);
 
     // Skip the input or next value if there is a connected block.
     if (newNode &&
         (newNode.getType() == Blockly.ASTNode.types.INPUT ||
          newNode.getType() == Blockly.ASTNode.types.NEXT) &&
         newNode.getLocation().targetBlock()) {
-      newNode = this.getNextNode_(newNode, this.validLineNode_);
+      newNode = this.getNextNode_(newNode, this.validLineNode);
     }
     if (newNode) {
       this.setCurNode(newNode);
@@ -57,9 +56,8 @@ export class LineCursor extends Blockly.BasicCursor {
   }
 
   /**
-   * For a basic cursor we only have the ability to go next and previous, so
-   * in will also allow the user to get to the next node in the pre order
-   * traversal.
+   * Moves the cursor to the next input connection or field
+   * in the pre order traversal.
    * @return {Blockly.ASTNode} The next node, or null if the current node is
    *     not set or there is no next value.
    * @override
@@ -69,7 +67,7 @@ export class LineCursor extends Blockly.BasicCursor {
     if (!curNode) {
       return null;
     }
-    const newNode = this.getNextNode_(curNode, this.validInLineNode_);
+    const newNode = this.getNextNode_(curNode, this.validInLineNode);
 
     if (newNode) {
       this.setCurNode(newNode);
@@ -77,7 +75,8 @@ export class LineCursor extends Blockly.BasicCursor {
     return newNode;
   }
   /**
-   * Find the previous node in the pre order traversal.
+   * Moves the cursor to the previous next connection or previous connection in
+   * the pre order traversal.
    * @return {Blockly.ASTNode} The previous node, or null if the current node
    *     is not set or there is no previous value.
    * @override
@@ -87,13 +86,13 @@ export class LineCursor extends Blockly.BasicCursor {
     if (!curNode) {
       return null;
     }
-    let newNode = this.getPreviousNode_(curNode, this.validLineNode_);
+    let newNode = this.getPreviousNode_(curNode, this.validLineNode);
 
     if (newNode &&
         (newNode.getType() == Blockly.ASTNode.types.INPUT ||
          newNode.getType() == Blockly.ASTNode.types.NEXT) &&
         newNode.getLocation().targetBlock()) {
-      newNode = this.getPreviousNode_(newNode, this.validLineNode_);
+      newNode = this.getPreviousNode_(newNode, this.validLineNode);
     }
 
     if (newNode) {
@@ -102,8 +101,7 @@ export class LineCursor extends Blockly.BasicCursor {
     return newNode;
   }
   /**
-   * For a basic cursor we only have the ability to go next and previous, so
-   * out will allow the user to get to the previous node in the pre order
+   * Moves the cursor to the previous input connection or field in the pre order
    * traversal.
    * @return {Blockly.ASTNode} The previous node, or null if the current node is
    *     not set or there is no previous value.
@@ -114,7 +112,7 @@ export class LineCursor extends Blockly.BasicCursor {
     if (!curNode) {
       return null;
     }
-    const newNode = this.getPreviousNode_(curNode, this.validInLineNode_);
+    const newNode = this.getPreviousNode_(curNode, this.validInLineNode);
 
     if (newNode) {
       this.setCurNode(newNode);
@@ -123,13 +121,14 @@ export class LineCursor extends Blockly.BasicCursor {
   }
 
   /**
-   * Meant to traverse by lines of code. This is blocks, statement inputs and
-   * next connections.
-   * @param {Blockly.ASTNode} node The AST node to check whether it is valid.
+   * Decides if the previous and next methods should traverse the given node.
+   * The previous and next method only traverse previous connections, next
+   * connections and blocks.
+   * @param {Blockly.ASTNode} node The AST node to check.
    * @return {boolean} True if the node should be visited, false otherwise.
-   * @private
+   * @protected
    */
-  validLineNode_(node) {
+  validLineNode(node) {
     if (!node) {
       return false;
     }
@@ -151,12 +150,13 @@ export class LineCursor extends Blockly.BasicCursor {
   }
 
   /**
-   * Meant to traverse within a block. These are fields and input values.
+   * Decides if the in and out methods should traverse the given node.
+   * The in and out method only traverse fields and input connections.
    * @param {Blockly.ASTNode} node The AST node to check whether it is valid.
    * @return {boolean} True if the node should be visited, false otherwise.
-   * @private
+   * @protected
    */
-  validInLineNode_(node) {
+  validInLineNode(node) {
     if (!node) {
       return false;
     }

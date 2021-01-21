@@ -25,8 +25,9 @@ export function createNavigationWorkspace(
     readOnly: readOnly,
   });
   if (enableKeyboardNav) {
+    navigation.addWorkspace(workspace);
     navigation.enableKeyboardAccessibility(workspace);
-    navigation.setState(workspace, Constants.State.WORKSPACE);
+    navigation.setState(workspace, Constants.STATE.WORKSPACE);
   }
   return workspace;
 }

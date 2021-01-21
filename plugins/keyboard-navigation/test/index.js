@@ -11,13 +11,10 @@
 import {createPlayground, toolboxCategories} from '@blockly/dev-tools';
 import * as Blockly from 'blockly';
 
-import {LineCursorPluginInfo, Register} from '../src/index.js';
+import {Register} from '../src';
 
-import {TestNavigation} from './test_navigation';
-import {TestToolbox} from './test_toolbox';
 
 let registration;
-// TODO: There should only be one import.
 /**
  * Create a workspace.
  * @param {HTMLElement} blocklyDiv The blockly container div.
@@ -27,7 +24,6 @@ let registration;
 function createWorkspace(blocklyDiv, options) {
   const workspace = Blockly.inject(blocklyDiv, options);
   registration.addWorkspace(workspace);
-  // registration.dispose();
   return workspace;
 }
 

@@ -1,9 +1,8 @@
-const chai = require('chai');
 const sinon = require('sinon');
 
 const Blockly = require('blockly/node');
 
-const {defaultRegister, Constants} = require('../src/index');
+const {Register} = require('../src/index');
 const {createNavigationWorkspace, createKeyDownEvent} =
     require('./test_helper');
 
@@ -100,16 +99,17 @@ suite('Register', function() {
       'previousStatement': null,
       'nextStatement': null,
     }]);
-    defaultRegister.init();
-    this.navigation = defaultRegister.navigation_;
+    this.register = new Register();
+    this.register.init();
+    this.navigation = this.register.navigation;
     this.workspace = createNavigationWorkspace(this.navigation, true);
-    defaultRegister.addWorkspace(this.workspace);
+    this.register.addWorkspace(this.workspace);
     this.basicBlock = this.workspace.newBlock('basic_block');
   });
 
   teardown(function() {
     this.jsdomCleanup();
-    defaultRegister.dispose();
+    this.register.dispose();
     delete Blockly.Blocks['basic_block'];
     this.workspace.dispose();
   });
@@ -123,18 +123,18 @@ suite('Register', function() {
         'Control C',
         createKeyDownEvent(
             Blockly.utils.KeyCodes.C, 'NotAField',
-            [Blockly.utils.KeyCodes.CTRL])
+            [Blockly.utils.KeyCodes.CTRL]),
       ],
       [
         'Meta C',
         createKeyDownEvent(
             Blockly.utils.KeyCodes.C, 'NotAField',
-            [Blockly.utils.KeyCodes.META])
+            [Blockly.utils.KeyCodes.META]),
       ],
       [
         'Alt C',
         createKeyDownEvent(
-            Blockly.utils.KeyCodes.C, 'NotAField', [Blockly.utils.KeyCodes.ALT])
+            Blockly.utils.KeyCodes.C, 'NotAField', [Blockly.utils.KeyCodes.ALT]),
       ],
     ];
 
@@ -226,11 +226,11 @@ suite('Register', function() {
 
     const testCases = [
       [
-        'Delete', createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, 'NotAField')
+        'Delete', createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, 'NotAField'),
       ],
       [
         'Backspace',
-        createKeyDownEvent(Blockly.utils.KeyCodes.BACKSPACE, 'NotAField')
+        createKeyDownEvent(Blockly.utils.KeyCodes.BACKSPACE, 'NotAField'),
       ],
     ];
     // Delete a block.
@@ -264,18 +264,18 @@ suite('Register', function() {
         'Control X',
         createKeyDownEvent(
             Blockly.utils.KeyCodes.X, 'NotAField',
-            [Blockly.utils.KeyCodes.CTRL])
+            [Blockly.utils.KeyCodes.CTRL]),
       ],
       [
         'Meta X',
         createKeyDownEvent(
             Blockly.utils.KeyCodes.X, 'NotAField',
-            [Blockly.utils.KeyCodes.META])
+            [Blockly.utils.KeyCodes.META]),
       ],
       [
         'Alt X',
         createKeyDownEvent(
-            Blockly.utils.KeyCodes.X, 'NotAField', [Blockly.utils.KeyCodes.ALT])
+            Blockly.utils.KeyCodes.X, 'NotAField', [Blockly.utils.KeyCodes.ALT]),
       ],
     ];
 
@@ -367,18 +367,18 @@ suite('Register', function() {
         'Control X',
         createKeyDownEvent(
             Blockly.utils.KeyCodes.V, 'NotAField',
-            [Blockly.utils.KeyCodes.CTRL])
+            [Blockly.utils.KeyCodes.CTRL]),
       ],
       [
         'Meta X',
         createKeyDownEvent(
             Blockly.utils.KeyCodes.V, 'NotAField',
-            [Blockly.utils.KeyCodes.META])
+            [Blockly.utils.KeyCodes.META]),
       ],
       [
         'Alt X',
         createKeyDownEvent(
-            Blockly.utils.KeyCodes.V, 'NotAField', [Blockly.utils.KeyCodes.ALT])
+            Blockly.utils.KeyCodes.V, 'NotAField', [Blockly.utils.KeyCodes.ALT]),
       ],
     ];
 

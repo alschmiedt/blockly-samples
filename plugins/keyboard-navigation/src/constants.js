@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -10,21 +10,25 @@
  */
 
 /**
- * Object holding possible states for navigation.
- * TODO: Where does this go?
+ * Keyboard navigation states.
+ * The different parts of Blockly that the user navigates between.
  * @enum {string}
+ * @const
+ * @public
  */
-export const State = {
+export const STATE = {
   WORKSPACE: 'workspace',
   FLYOUT: 'flyout',
   TOOLBOX: 'toolbox',
 };
 
 /**
- * Object holding default shortcut names.
+ * Default keyboard navigation shortcut names.
  * @enum {string}
+ * @const
+ * @public
  */
-export const ShortcutNames = {
+export const SHORTCUT_NAMES = {
   PREVIOUS: 'previous',
   NEXT: 'next',
   IN: 'in',
