@@ -15,26 +15,26 @@ import '../src/gesture_monkey_patch';
 import * as Blockly from 'blockly/core';
 
 import * as Constants from './constants';
-import {Navigation} from './navigation';
+import {NavigationHelper} from './navigation_helper';
 
 /**
  * Class for registering shortcuts for keyboard navigation.
  */
-export class Register {
+export class KeyboardNavigation {
   /**
    * Constructor used for registering shortcuts.
    * This will register any default shortcuts for keyboard navigation.
    * This is intended to be a singleton.
-   * @param {!Navigation=} optNavigation The class that handles keyboard
+   * @param {!NavigationHelper=} optNavigation The class that handles keyboard
    *     navigation shortcuts. (Ex: inserting a block, focusing the flyout).
    */
   constructor(optNavigation) {
     /**
      * Handles any keyboard navigation shortcuts.
-     * @type {!Navigation}
-     * @protected
+     * @type {!NavigationHelper}
+     * @public
      */
-    this.navigation = optNavigation || new Navigation();
+    this.navigationHelper = optNavigation || new NavigationHelper();
   }
 
   /**
@@ -139,13 +139,13 @@ export class Register {
     }
     switch (shortcut.name) {
       case Constants.SHORTCUT_NAMES.PREVIOUS:
-        return this.selectPrevious_();
+        return this.selectPrevious();
       case Constants.SHORTCUT_NAMES.OUT:
-        return this.selectParent_();
+        return this.selectParent();
       case Constants.SHORTCUT_NAMES.NEXT:
-        return this.selectNext_();
+        return this.selectNext();
       case Constants.SHORTCUT_NAMES.IN:
-        return this.selectChild_();
+        return this.selectChild();
       default:
         return false;
     }
@@ -160,7 +160,7 @@ export class Register {
    * @public
    */
   addWorkspace(workspace) {
-    this.navigation.addWorkspace(workspace);
+    this.navigationHelper.addWorkspace(workspace);
   }
 
   /**
@@ -171,7 +171,7 @@ export class Register {
    * @public
    */
   removeWorkspace(workspace) {
-    this.navigation.removeWorkspace(workspace);
+    this.navigationHelper.removeWorkspace(workspace);
   }
 
   /**
@@ -190,7 +190,7 @@ export class Register {
         const flyout = workspace.getFlyout();
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -252,9 +252,9 @@ export class Register {
       name: Constants.SHORTCUT_NAMES.TOGGLE_KEYBOARD_NAV,
       callback: (workspace) => {
         if (workspace.keyboardAccessibilityMode) {
-          this.navigation.disableKeyboardAccessibility(workspace);
+          this.navigationHelper.disableKeyboardAccessibility(workspace);
         } else {
-          this.navigation.enableKeyboardAccessibility(workspace);
+          this.navigationHelper.enableKeyboardAccessibility(workspace);
         }
         return true;
       },
@@ -283,7 +283,7 @@ export class Register {
       callback: (workspace, e, shortcut) => {
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -292,7 +292,7 @@ export class Register {
             }
             return isHandled;
           case Constants.STATE.FLYOUT:
-            this.navigation.focusToolbox(workspace);
+            this.navigationHelper.focusToolbox(workspace);
             return true;
           case Constants.STATE.TOOLBOX:
             return toolbox && typeof toolbox.onShortcut == 'function' ?
@@ -325,7 +325,7 @@ export class Register {
         const toolbox = workspace.getToolbox();
         const flyout = workspace.getFlyout();
         let isHandled = false;
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -370,7 +370,7 @@ export class Register {
       callback: (workspace, e, shortcut) => {
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -383,7 +383,7 @@ export class Register {
                 toolbox.onShortcut(shortcut) :
                 false;
             if (!isHandled) {
-              this.navigation.focusFlyout(workspace);
+              this.navigationHelper.focusFlyout(workspace);
             }
             return true;
           default:
@@ -411,9 +411,9 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
-            return this.navigation.connectMarkerAndCursor(workspace);
+            return this.navigationHelper.connectMarkerAndCursor(workspace);
           default:
             return false;
         }
@@ -438,12 +438,12 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
-            this.navigation.handleEnterForWS(workspace);
+            this.navigationHelper.handleEnterForWS(workspace);
             return true;
           case Constants.STATE.FLYOUT:
-            this.navigation.insertFromFlyout(workspace);
+            this.navigationHelper.insertFromFlyout(workspace);
             return true;
           default:
             return false;
@@ -470,9 +470,9 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
-            this.navigation.disconnectBlocks(workspace);
+            this.navigationHelper.disconnectBlocks(workspace);
             return true;
           default:
             return false;
@@ -499,12 +499,12 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             if (!workspace.getToolbox()) {
-              this.navigation.focusFlyout(workspace);
+              this.navigationHelper.focusFlyout(workspace);
             } else {
-              this.navigation.focusToolbox(workspace);
+              this.navigationHelper.focusToolbox(workspace);
             }
             return true;
           default:
@@ -531,12 +531,12 @@ export class Register {
         return workspace.keyboardAccessibilityMode;
       },
       callback: (workspace) => {
-        switch (this.navigation.getState(workspace)) {
+        switch (this.navigationHelper.getState(workspace)) {
           case Constants.STATE.FLYOUT:
-            this.navigation.focusWorkspace(workspace);
+            this.navigationHelper.focusWorkspace(workspace);
             return true;
           case Constants.STATE.TOOLBOX:
-            this.navigation.focusWorkspace(workspace);
+            this.navigationHelper.focusWorkspace(workspace);
             return true;
           default:
             return false;
@@ -565,7 +565,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigation.moveWSCursor(workspace, -1, 0);
+        return this.navigationHelper.moveWSCursor(workspace, -1, 0);
       },
     };
 
@@ -590,7 +590,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigation.moveWSCursor(workspace, 1, 0);
+        return this.navigationHelper.moveWSCursor(workspace, 1, 0);
       },
     };
 
@@ -615,7 +615,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigation.moveWSCursor(workspace, 0, -1);
+        return this.navigationHelper.moveWSCursor(workspace, 0, -1);
       },
     };
 
@@ -640,7 +640,7 @@ export class Register {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigation.moveWSCursor(workspace, 0, 1);
+        return this.navigationHelper.moveWSCursor(workspace, 0, 1);
       },
     };
 
@@ -709,7 +709,7 @@ export class Register {
             !workspace.options.readOnly && !Blockly.Gesture.inProgress();
       },
       callback: () => {
-        return this.navigation.paste();
+        return this.navigationHelper.paste();
       },
     };
 
@@ -756,7 +756,7 @@ export class Register {
       callback: (workspace) => {
         const sourceBlock = workspace.getCursor().getCurNode().getSourceBlock();
         Blockly.copy(sourceBlock);
-        this.navigation.moveCursorOnBlockDelete(workspace, sourceBlock);
+        this.navigationHelper.moveCursorOnBlockDelete(workspace, sourceBlock);
         Blockly.deleteBlock(sourceBlock);
         return true;
       },
@@ -811,7 +811,7 @@ export class Register {
         if (Blockly.Gesture.inProgress()) {
           return false;
         }
-        this.navigation.moveCursorOnBlockDelete(workspace, sourceBlock);
+        this.navigationHelper.moveCursorOnBlockDelete(workspace, sourceBlock);
         Blockly.deleteBlock(sourceBlock);
         return true;
       },
@@ -832,7 +832,7 @@ export class Register {
     for (const name of shortcutNames) {
       Blockly.ShortcutRegistry.registry.unregister(name);
     }
-    this.navigation.dispose();
+    this.navigationHelper.dispose();
   }
 
   /**

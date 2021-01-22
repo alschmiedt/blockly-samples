@@ -17,7 +17,7 @@ import {registrationName as cursorRegistrationName, registrationType as cursorRe
 /**
  * Class that holds all methods necessary for keyboard navigation to work.
  */
-export class Navigation {
+export class NavigationHelper {
   /**
    * Constructor for keyboard navigation.
    */
@@ -973,7 +973,7 @@ export class Navigation {
    * Enables accessibility mode.
    * @param {!Blockly.WorkspaceSvg} workspace The workspace to enable keyboard
    *     accessibility on.
-   * @package
+   * @public
    */
   enableKeyboardAccessibility(workspace) {
     if (this.workspaces.indexOf(workspace) > -1 &&
@@ -987,7 +987,7 @@ export class Navigation {
    * Disables accessibility mode.
    * @param {!Blockly.WorkspaceSvg} workspace The workspace to disable keyboard
    *     accessibility on.
-   * @package
+   * @public
    */
   disableKeyboardAccessibility(workspace) {
     if (this.workspaces.indexOf(workspace) > -1 &&

@@ -2,7 +2,7 @@ const sinon = require('sinon');
 
 const Blockly = require('blockly/node');
 
-const {Register} = require('../src/index');
+const {KeyboardNavigation} = require('../src/index');
 const {createNavigationWorkspace, createKeyDownEvent} =
     require('./test_helper');
 
@@ -99,9 +99,9 @@ suite('Register', function() {
       'previousStatement': null,
       'nextStatement': null,
     }]);
-    this.register = new Register();
+    this.register = new KeyboardNavigation();
     this.register.init();
-    this.navigation = this.register.navigation;
+    this.navigation = this.register.navigationHelper;
     this.workspace = createNavigationWorkspace(this.navigation, true);
     this.register.addWorkspace(this.workspace);
     this.basicBlock = this.workspace.newBlock('basic_block');

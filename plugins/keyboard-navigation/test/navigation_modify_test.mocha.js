@@ -6,7 +6,7 @@
 
 const chai = require('chai');
 const Blockly = require('blockly/node');
-const {Navigation} = require('../src/navigation');
+const {NavigationHelper} = require('../src/navigation_helper');
 const assert = chai.assert;
 
 suite('Insert/Modify', function() {
@@ -32,7 +32,7 @@ suite('Insert/Modify', function() {
 
   /**
    * Check that modify failed.
-   * @param {Navigation} navigation The class under test.
+   * @param {NavigationHelper} navigation The class under test.
    * @param {Blockly.WorkspaceSvg} workspace The main workspace.
    * @param {!Blockly.ASTNode} markerNode The node to try to connect to.
    * @param {!Blockly.ASTNode} cursorNode The node to connect to the markerNode.
@@ -111,7 +111,7 @@ suite('Insert/Modify', function() {
     </xml>`
     });
     Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xmlText), this.workspace);
-    this.navigation = new Navigation();
+    this.navigation = new NavigationHelper();
     this.navigation.addWorkspace(this.workspace);
 
 
@@ -132,7 +132,6 @@ suite('Insert/Modify', function() {
   });
 
   suite('Marked Connection', function() {
-    // TODO: Marked connection or cursor connection is already connected.
     suite('Marker on next', function() {
       setup(function() {
         this.markerNode = Blockly.ASTNode.createConnectionNode(
@@ -406,8 +405,6 @@ suite('Insert/Modify', function() {
   });
 
   suite('Marked Block', function() {
-    // TODO: Decide whether it ever makes sense to mark a block, and what to do
-    // if so.  For now all of these attempted modifications will fail.
     suite('Marked any block', function() {
       // These tests are using a stack block, but do not depend on the type of
       // the block.

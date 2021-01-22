@@ -15,7 +15,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 
 const Blockly = require('blockly/node');
-const {Register, Constants} = require('../src/index');
+const {KeyboardNavigation, Constants} = require('../src/index');
 const {createNavigationWorkspace, createKeyDownEvent} =
     require('./test_helper');
 
@@ -26,9 +26,9 @@ suite('Navigation', function() {
     Blockly.utils.dom.getFastTextWidthWithSizeString = function() {
       return 10;
     };
-    this.register = new Register();
+    this.register = new KeyboardNavigation();
     this.register.init();
-    this.navigation = this.register.navigation;
+    this.navigation = this.register.navigationHelper;
   });
 
   teardown(function() {
@@ -64,24 +64,24 @@ suite('Navigation', function() {
 
     const testCases = [
       [
-        'Calls toolbox selectNext_',
+        'Calls toolbox selectNext',
         createKeyDownEvent(Blockly.utils.KeyCodes.S, 'NotAField'),
-        'selectNext_',
+        'selectNext',
       ],
       [
-        'Calls toolbox selectPrevious_',
+        'Calls toolbox selectPrevious',
         createKeyDownEvent(Blockly.utils.KeyCodes.W, 'NotAField'),
-        'selectPrevious_',
+        'selectPrevious',
       ],
       [
-        'Calls toolbox selectParent_',
+        'Calls toolbox selectParent',
         createKeyDownEvent(Blockly.utils.KeyCodes.D, 'NotAField'),
-        'selectChild_',
+        'selectChild',
       ],
       [
-        'Calls toolbox selectChild_',
+        'Calls toolbox selectChild',
         createKeyDownEvent(Blockly.utils.KeyCodes.A, 'NotAField'),
-        'selectParent_',
+        'selectParent',
       ],
     ];
 
@@ -860,7 +860,7 @@ suite('Navigation', function() {
       delete Blockly.Blocks['basic_block'];
     });
 
-    test.skip('Delete block - has parent ', function() {
+    test('Delete block - has parent ', function() {
       this.basicBlockA.nextConnection.connect(
           this.basicBlockB.previousConnection);
       const astNode = Blockly.ASTNode.createBlockNode(this.basicBlockB);
@@ -868,18 +868,31 @@ suite('Navigation', function() {
       this.workspace.getCursor().setCurNode(astNode);
       // Remove the child block
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, '');
+
+      // Actions that happen when a block is deleted were causing problems.
+      // Since this is not what we are trying to test and does not effect the
+      // feature, disable events.
+      Blockly.Events.disable();
       Blockly.onKeyDown(mockEvent);
+      Blockly.Events.enable();
+
       chai.assert.equal(
           this.workspace.getCursor().getCurNode().getType(),
           Blockly.ASTNode.types.NEXT);
     });
 
-    test.skip('Delete block - no parent ', function() {
+    test('Delete block - no parent ', function() {
       const astNode = Blockly.ASTNode.createBlockNode(this.basicBlockB);
       this.workspace.getCursor().setCurNode(astNode);
 
       const mockEvent = createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, '');
+
+      // Actions that happen when a block is deleted were causing problems.
+      // Since this is not what we are trying to test and does not effect the
+      // feature, disable events.
+      Blockly.Events.disable();
       Blockly.onKeyDown(mockEvent);
+      Blockly.Events.enable();
 
       chai.assert.equal(
           this.workspace.getCursor().getCurNode().getType(),
