@@ -17,7 +17,7 @@ import {registrationName as cursorRegistrationName, registrationType as cursorRe
 /**
  * Class that holds all methods necessary for keyboard navigation to work.
  */
-export class NavigationHelper {
+export class Navigation {
   /**
    * Constructor for keyboard navigation.
    */

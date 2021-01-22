@@ -8,8 +8,8 @@ import * as Constants from '../src/constants';
 
 import {FlyoutCursor, pluginInfo as FlyoutCursorPluginInfo} from './flyout_cursor';
 import {LineCursor, pluginInfo as LineCursorPluginInfo} from './line_cursor';
-import {NavigationHelper} from './navigation_helper';
-import {KeyboardNavigation} from './keyboard_navigation';
+import {Navigation} from './navigation';
+import {NavigationController} from './navigation_controller';
 
 export {
   Constants,
@@ -17,6 +17,6 @@ export {
   FlyoutCursorPluginInfo,
   LineCursor,
   LineCursorPluginInfo,
-  NavigationHelper,
-  KeyboardNavigation,
+  Navigation,
+  NavigationController,
 };

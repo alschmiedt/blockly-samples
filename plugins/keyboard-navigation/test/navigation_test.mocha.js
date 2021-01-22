@@ -15,7 +15,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 
 const Blockly = require('blockly/node');
-const {KeyboardNavigation, Constants} = require('../src/index');
+const {NavigationController, Constants} = require('../src/index');
 const {createNavigationWorkspace, createKeyDownEvent} =
     require('./test_helper');
 
@@ -26,13 +26,13 @@ suite('Navigation', function() {
     Blockly.utils.dom.getFastTextWidthWithSizeString = function() {
       return 10;
     };
-    this.register = new KeyboardNavigation();
-    this.register.init();
-    this.navigation = this.register.navigationHelper;
+    this.controller = new NavigationController();
+    this.controller.init();
+    this.navigation = this.controller.navigation;
   });
 
   teardown(function() {
-    this.register.dispose();
+    this.controller.dispose();
     this.jsdomCleanup();
   });
 
@@ -268,6 +268,9 @@ suite('Navigation', function() {
     });
 
     test('Mark - Disabled Block', function() {
+      this.navigation.loggingCallback = function(type, msg) {
+        chai.assert.equal(msg, 'Can\'t insert a disabled block.');
+      };
       const flyout = this.workspace.getFlyout();
       const topBlock = flyout.getWorkspace().getTopBlocks()[0];
       topBlock.setEnabled(false);
@@ -282,6 +285,7 @@ suite('Navigation', function() {
       chai.assert.equal(
           this.navigation.getState(this.workspace), Constants.STATE.FLYOUT);
       chai.assert.equal(this.workspace.getTopBlocks().length, 0);
+      this.navigation.loggingCallback = null;
     });
 
     test('Exit', function() {
@@ -946,7 +950,14 @@ suite('Navigation', function() {
     setup(function() {
       Blockly.defineBlocksWithJsonArray([{
         'type': 'basic_block',
-        'message0': '',
+        'message0': '%1',
+        'args0': [
+          {
+            'type': 'field_input',
+            'name': 'TEXT',
+            'text': 'default',
+          },
+        ],
         'previousStatement': null,
         'nextStatement': null,
       }]);
@@ -1044,7 +1055,14 @@ suite('Navigation', function() {
     setup(function() {
       Blockly.defineBlocksWithJsonArray([{
         'type': 'basic_block',
-        'message0': '',
+        'message0': '%1',
+        'args0': [
+          {
+            'type': 'field_input',
+            'name': 'TEXT',
+            'text': 'default',
+          },
+        ],
         'previousStatement': null,
         'nextStatement': null,
       }]);

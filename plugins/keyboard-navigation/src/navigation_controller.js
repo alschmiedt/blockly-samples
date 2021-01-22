@@ -15,26 +15,26 @@ import '../src/gesture_monkey_patch';
 import * as Blockly from 'blockly/core';
 
 import * as Constants from './constants';
-import {NavigationHelper} from './navigation_helper';
+import {Navigation} from './navigation';
 
 /**
  * Class for registering shortcuts for keyboard navigation.
  */
-export class KeyboardNavigation {
+export class NavigationController {
   /**
    * Constructor used for registering shortcuts.
    * This will register any default shortcuts for keyboard navigation.
    * This is intended to be a singleton.
-   * @param {!NavigationHelper=} optNavigation The class that handles keyboard
+   * @param {!Navigation=} optNavigation The class that handles keyboard
    *     navigation shortcuts. (Ex: inserting a block, focusing the flyout).
    */
   constructor(optNavigation) {
     /**
      * Handles any keyboard navigation shortcuts.
-     * @type {!NavigationHelper}
+     * @type {!Navigation}
      * @public
      */
-    this.navigationHelper = optNavigation || new NavigationHelper();
+    this.navigation = optNavigation || new Navigation();
   }
 
   /**
@@ -160,7 +160,7 @@ export class KeyboardNavigation {
    * @public
    */
   addWorkspace(workspace) {
-    this.navigationHelper.addWorkspace(workspace);
+    this.navigation.addWorkspace(workspace);
   }
 
   /**
@@ -171,7 +171,27 @@ export class KeyboardNavigation {
    * @public
    */
   removeWorkspace(workspace) {
-    this.navigationHelper.removeWorkspace(workspace);
+    this.navigation.removeWorkspace(workspace);
+  }
+
+  /**
+   * Turns on keyboard navigation.
+   * @param {!Blockly.WorkspaceSvg} workspace The workspace to turn on keyboard
+   *     navigation for.
+   * @public
+   */
+  enable(workspace) {
+    this.navigation.enableKeyboardAccessibility(workspace);
+  }
+
+  /**
+   * Turns off keyboard navigation.
+   * @param {!Blockly.WorkspaceSvg} workspace The workspace to turn off keyboard
+   *     navigation on.
+   * @public
+   */
+  disable(workspace) {
+    this.navigation.disableKeyboardAccessibility(workspace);
   }
 
   /**
@@ -190,7 +210,7 @@ export class KeyboardNavigation {
         const flyout = workspace.getFlyout();
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -223,8 +243,8 @@ export class KeyboardNavigation {
   /**
    * Gives the cursor to the field to handle if the cursor is on a field.
    * @param {!Blockly.WorkspaceSvg} workspace The workspace to check.
-   * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut to
-   *     give to the field.
+   * @param {!Blockly.ShortcutRegistry.KeyboardShortcut} shortcut The shortcut
+   *     to give to the field.
    * @return {boolean} True if the shortcut was handled by the field, false
    *     otherwise.
    * @protected
@@ -252,9 +272,9 @@ export class KeyboardNavigation {
       name: Constants.SHORTCUT_NAMES.TOGGLE_KEYBOARD_NAV,
       callback: (workspace) => {
         if (workspace.keyboardAccessibilityMode) {
-          this.navigationHelper.disableKeyboardAccessibility(workspace);
+          this.navigation.disableKeyboardAccessibility(workspace);
         } else {
-          this.navigationHelper.enableKeyboardAccessibility(workspace);
+          this.navigation.enableKeyboardAccessibility(workspace);
         }
         return true;
       },
@@ -283,7 +303,7 @@ export class KeyboardNavigation {
       callback: (workspace, e, shortcut) => {
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -292,7 +312,7 @@ export class KeyboardNavigation {
             }
             return isHandled;
           case Constants.STATE.FLYOUT:
-            this.navigationHelper.focusToolbox(workspace);
+            this.navigation.focusToolbox(workspace);
             return true;
           case Constants.STATE.TOOLBOX:
             return toolbox && typeof toolbox.onShortcut == 'function' ?
@@ -325,7 +345,7 @@ export class KeyboardNavigation {
         const toolbox = workspace.getToolbox();
         const flyout = workspace.getFlyout();
         let isHandled = false;
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -370,7 +390,7 @@ export class KeyboardNavigation {
       callback: (workspace, e, shortcut) => {
         const toolbox = workspace.getToolbox();
         let isHandled = false;
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             isHandled = this.fieldShortcutHandler(workspace, shortcut);
             if (!isHandled) {
@@ -383,7 +403,7 @@ export class KeyboardNavigation {
                 toolbox.onShortcut(shortcut) :
                 false;
             if (!isHandled) {
-              this.navigationHelper.focusFlyout(workspace);
+              this.navigation.focusFlyout(workspace);
             }
             return true;
           default:
@@ -411,9 +431,9 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
-            return this.navigationHelper.connectMarkerAndCursor(workspace);
+            return this.navigation.connectMarkerAndCursor(workspace);
           default:
             return false;
         }
@@ -438,12 +458,12 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
-            this.navigationHelper.handleEnterForWS(workspace);
+            this.navigation.handleEnterForWS(workspace);
             return true;
           case Constants.STATE.FLYOUT:
-            this.navigationHelper.insertFromFlyout(workspace);
+            this.navigation.insertFromFlyout(workspace);
             return true;
           default:
             return false;
@@ -470,9 +490,9 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
-            this.navigationHelper.disconnectBlocks(workspace);
+            this.navigation.disconnectBlocks(workspace);
             return true;
           default:
             return false;
@@ -499,12 +519,12 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.WORKSPACE:
             if (!workspace.getToolbox()) {
-              this.navigationHelper.focusFlyout(workspace);
+              this.navigation.focusFlyout(workspace);
             } else {
-              this.navigationHelper.focusToolbox(workspace);
+              this.navigation.focusToolbox(workspace);
             }
             return true;
           default:
@@ -531,12 +551,12 @@ export class KeyboardNavigation {
         return workspace.keyboardAccessibilityMode;
       },
       callback: (workspace) => {
-        switch (this.navigationHelper.getState(workspace)) {
+        switch (this.navigation.getState(workspace)) {
           case Constants.STATE.FLYOUT:
-            this.navigationHelper.focusWorkspace(workspace);
+            this.navigation.focusWorkspace(workspace);
             return true;
           case Constants.STATE.TOOLBOX:
-            this.navigationHelper.focusWorkspace(workspace);
+            this.navigation.focusWorkspace(workspace);
             return true;
           default:
             return false;
@@ -565,7 +585,7 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigationHelper.moveWSCursor(workspace, -1, 0);
+        return this.navigation.moveWSCursor(workspace, -1, 0);
       },
     };
 
@@ -590,7 +610,7 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigationHelper.moveWSCursor(workspace, 1, 0);
+        return this.navigation.moveWSCursor(workspace, 1, 0);
       },
     };
 
@@ -615,7 +635,7 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigationHelper.moveWSCursor(workspace, 0, -1);
+        return this.navigation.moveWSCursor(workspace, 0, -1);
       },
     };
 
@@ -640,7 +660,7 @@ export class KeyboardNavigation {
             !workspace.options.readOnly;
       },
       callback: (workspace) => {
-        return this.navigationHelper.moveWSCursor(workspace, 0, 1);
+        return this.navigation.moveWSCursor(workspace, 0, 1);
       },
     };
 
@@ -709,7 +729,7 @@ export class KeyboardNavigation {
             !workspace.options.readOnly && !Blockly.Gesture.inProgress();
       },
       callback: () => {
-        return this.navigationHelper.paste();
+        return this.navigation.paste();
       },
     };
 
@@ -756,7 +776,7 @@ export class KeyboardNavigation {
       callback: (workspace) => {
         const sourceBlock = workspace.getCursor().getCurNode().getSourceBlock();
         Blockly.copy(sourceBlock);
-        this.navigationHelper.moveCursorOnBlockDelete(workspace, sourceBlock);
+        this.navigation.moveCursorOnBlockDelete(workspace, sourceBlock);
         Blockly.deleteBlock(sourceBlock);
         return true;
       },
@@ -811,7 +831,7 @@ export class KeyboardNavigation {
         if (Blockly.Gesture.inProgress()) {
           return false;
         }
-        this.navigationHelper.moveCursorOnBlockDelete(workspace, sourceBlock);
+        this.navigation.moveCursorOnBlockDelete(workspace, sourceBlock);
         Blockly.deleteBlock(sourceBlock);
         return true;
       },
@@ -832,7 +852,7 @@ export class KeyboardNavigation {
     for (const name of shortcutNames) {
       Blockly.ShortcutRegistry.registry.unregister(name);
     }
-    this.navigationHelper.dispose();
+    this.navigation.dispose();
   }
 
   /**

@@ -11,10 +11,10 @@
 import {createPlayground, toolboxCategories} from '@blockly/dev-tools';
 import * as Blockly from 'blockly';
 
-import {LineCursor, KeyboardNavigation} from '../src';
+import {LineCursor, NavigationController} from '../src';
 
 
-let registration;
+let controller;
 
 /**
  * Create a workspace.
@@ -24,13 +24,13 @@ let registration;
  */
 function createWorkspace(blocklyDiv, options) {
   const workspace = Blockly.inject(blocklyDiv, options);
-  registration.addWorkspace(workspace);
+  controller.addWorkspace(workspace);
   return workspace;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  registration = new KeyboardNavigation();
-  registration.init();
+  controller = new NavigationController();
+  controller.init();
   const defaultOptions = {
     toolbox: toolboxCategories,
   };
@@ -41,11 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('accessibilityModeCheck')
     .addEventListener('click', (e) => {
       if (e.target.checked) {
-        registration.navigationHelper.enableKeyboardAccessibility(
-            Blockly.getMainWorkspace());
+        controller.enable(Blockly.getMainWorkspace());
       } else {
-        registration.navigationHelper.disableKeyboardAccessibility(
-            Blockly.getMainWorkspace());
+        controller.disable(Blockly.getMainWorkspace());
       }
     });
 
@@ -73,8 +71,7 @@ document.getElementById('cursorChanger').addEventListener('change', (e) => {
 
   if (!accessibilityCheckbox.checked) {
     accessibilityCheckbox.checked = true;
-    registration.navigationHelper.enableKeyboardAccessibility(
-        Blockly.getMainWorkspace());
+    controller.enable(Blockly.getMainWorkspace());
   }
 
   document.activeElement.blur();

@@ -2,7 +2,7 @@ const sinon = require('sinon');
 
 const Blockly = require('blockly/node');
 
-const {KeyboardNavigation} = require('../src/index');
+const {NavigationController} = require('../src/index');
 const {createNavigationWorkspace, createKeyDownEvent} =
     require('./test_helper');
 
@@ -99,17 +99,17 @@ suite('Register', function() {
       'previousStatement': null,
       'nextStatement': null,
     }]);
-    this.register = new KeyboardNavigation();
-    this.register.init();
-    this.navigation = this.register.navigationHelper;
+    this.controller = new NavigationController();
+    this.controller.init();
+    this.navigation = this.controller.navigation;
     this.workspace = createNavigationWorkspace(this.navigation, true);
-    this.register.addWorkspace(this.workspace);
+    this.controller.addWorkspace(this.workspace);
     this.basicBlock = this.workspace.newBlock('basic_block');
   });
 
   teardown(function() {
     this.jsdomCleanup();
-    this.register.dispose();
+    this.controller.dispose();
     delete Blockly.Blocks['basic_block'];
     this.workspace.dispose();
   });
@@ -134,7 +134,8 @@ suite('Register', function() {
       [
         'Alt C',
         createKeyDownEvent(
-            Blockly.utils.KeyCodes.C, 'NotAField', [Blockly.utils.KeyCodes.ALT]),
+            Blockly.utils.KeyCodes.C, 'NotAField',
+            [Blockly.utils.KeyCodes.ALT]),
       ],
     ];
 
@@ -226,7 +227,8 @@ suite('Register', function() {
 
     const testCases = [
       [
-        'Delete', createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, 'NotAField'),
+        'Delete',
+        createKeyDownEvent(Blockly.utils.KeyCodes.DELETE, 'NotAField'),
       ],
       [
         'Backspace',
@@ -275,7 +277,8 @@ suite('Register', function() {
       [
         'Alt X',
         createKeyDownEvent(
-            Blockly.utils.KeyCodes.X, 'NotAField', [Blockly.utils.KeyCodes.ALT]),
+            Blockly.utils.KeyCodes.X, 'NotAField',
+            [Blockly.utils.KeyCodes.ALT]),
       ],
     ];
 
@@ -378,7 +381,8 @@ suite('Register', function() {
       [
         'Alt X',
         createKeyDownEvent(
-            Blockly.utils.KeyCodes.V, 'NotAField', [Blockly.utils.KeyCodes.ALT]),
+            Blockly.utils.KeyCodes.V, 'NotAField',
+            [Blockly.utils.KeyCodes.ALT]),
       ],
     ];
 
