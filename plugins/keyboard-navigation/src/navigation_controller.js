@@ -72,7 +72,7 @@ export class NavigationController {
    *     to be handled.
    * @return {boolean} True if the field handled the shortcut,
    *     false otherwise.
-   * @this Blockly.FieldColour
+   * @this {Blockly.FieldColour}
    * @protected
    */
   fieldColourHandler(shortcut) {
@@ -104,7 +104,7 @@ export class NavigationController {
    *     to be handled.
    * @return {boolean} True if the field handled the shortcut,
    *     false otherwise.
-   * @this Blockly.FieldDropdown
+   * @this {Blockly.FieldDropdown}
    * @protected
    */
   fieldDropdownHandler(shortcut) {
@@ -130,7 +130,7 @@ export class NavigationController {
    *     to be handled.
    * @return {boolean} True if the toolbox handled the shortcut,
    *     false otherwise.
-   * @this Blockly.Toolbox
+   * @this {Blockly.Toolbox}
    * @protected
    */
   toolboxHandler(shortcut) {

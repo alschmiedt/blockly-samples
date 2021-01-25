@@ -108,7 +108,7 @@ suite('Insert/Modify', function() {
     <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox-connections" style="display: none">
       <block type="stack_block"></block>
       <block type="row_block"></block>
-    </xml>`
+    </xml>`,
     });
     Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xmlText), this.workspace);
     this.navigation = new Navigation();

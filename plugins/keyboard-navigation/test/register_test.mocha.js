@@ -11,10 +11,10 @@ suite('Register', function() {
    * Creates a test for not running keyDown events when the workspace is in read
    * only mode.
    * @param {Object} keyEvent Mocked key down event. Use createKeyDownEvent.
-   * @param {string=} opt_name An optional name for the test case.
+   * @param {string=} optName An optional name for the test case.
    */
-  function runReadOnlyTest(keyEvent, opt_name) {
-    const name = opt_name ? opt_name : 'Not called when readOnly is true';
+  function runReadOnlyTest(keyEvent, optName) {
+    const name = optName ? optName : 'Not called when readOnly is true';
     test(name, function() {
       this.workspace.options.readOnly = true;
       const hideChaffSpy = sinon.spy(Blockly, 'hideChaff');

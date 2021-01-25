@@ -6,7 +6,9 @@
 
 import * as Constants from '../src/constants';
 
-import {FlyoutCursor, pluginInfo as FlyoutCursorPluginInfo} from './flyout_cursor';
+import {
+  FlyoutCursor,
+  pluginInfo as FlyoutCursorPluginInfo} from './flyout_cursor';
 import {LineCursor, pluginInfo as LineCursorPluginInfo} from './line_cursor';
 import {Navigation} from './navigation';
 import {NavigationController} from './navigation_controller';

@@ -200,8 +200,8 @@ suite('Navigation', function() {
       this.navigation.getFlyoutCursor(this.workspace)
           .setCurNode(Blockly.ASTNode.createStackNode(flyoutBlocks[1]));
       let flyoutBlock = this.navigation.getFlyoutCursor(this.workspace)
-                            .getCurNode()
-                            .getLocation();
+          .getCurNode()
+          .getLocation();
       chai.assert.equal(
           flyoutBlock.getFieldValue('TEXT'), 'FirstCategory-SecondBlock');
 
@@ -216,8 +216,8 @@ suite('Navigation', function() {
       chai.assert.equal(
           this.navigation.getState(this.workspace), Constants.STATE.FLYOUT);
       flyoutBlock = this.navigation.getFlyoutCursor(this.workspace)
-                        .getCurNode()
-                        .getLocation();
+          .getCurNode()
+          .getLocation();
       chai.assert.equal(
           flyoutBlock.getFieldValue('TEXT'), 'FirstCategory-FirstBlock');
     });
@@ -234,8 +234,8 @@ suite('Navigation', function() {
       chai.assert.equal(
           this.navigation.getState(this.workspace), Constants.STATE.FLYOUT);
       const flyoutBlock = this.navigation.getFlyoutCursor(this.workspace)
-                              .getCurNode()
-                              .getLocation();
+          .getCurNode()
+          .getLocation();
       chai.assert.equal(
           flyoutBlock.getFieldValue('TEXT'), 'FirstCategory-SecondBlock');
     });
@@ -876,9 +876,7 @@ suite('Navigation', function() {
       // Actions that happen when a block is deleted were causing problems.
       // Since this is not what we are trying to test and does not effect the
       // feature, disable events.
-      Blockly.Events.disable();
       Blockly.onKeyDown(mockEvent);
-      Blockly.Events.enable();
 
       chai.assert.equal(
           this.workspace.getCursor().getCurNode().getType(),

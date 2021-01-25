@@ -21,7 +21,7 @@ const oldDoWorkspaceClick = Blockly.Gesture.prototype.doWorkspaceClick_;
  * Execute a workspace click. When in accessibility mode shift clicking will
  * move the cursor.
  * @param {!Event} e A mouse up or touch end event.
- * @this Blockly.Gesture
+ * @this {Blockly.Gesture}
  * @override
  */
 Blockly.Gesture.prototype.doWorkspaceClick_ = function(e) {
@@ -40,7 +40,7 @@ const oldDoBlockClick = Blockly.Gesture.prototype.doBlockClick_;
 /**
  * Execute a block click. When in accessibility mode shift clicking will move
  * the cursor to the block.
- * @this Blockly.Gesture
+ * @this {Blockly.Gesture}
  * @override
  */
 Blockly.Gesture.prototype.doBlockClick_ = function(e) {
