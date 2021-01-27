@@ -26,7 +26,7 @@ const oldDoWorkspaceClick = Blockly.Gesture.prototype.doWorkspaceClick_;
  */
 Blockly.Gesture.prototype.doWorkspaceClick_ = function(e) {
   const ws = this.creatorWorkspace_;
-  oldDoWorkspaceClick.bind(this)(e);
+  oldDoWorkspaceClick.call(this, e);
   if (e.shiftKey && ws.keyboardAccessibilityMode) {
     const screenCoord = new Blockly.utils.Coordinate(e.clientX, e.clientY);
     const wsCoord = Blockly.utils.screenToWsCoordinates(ws, screenCoord);
@@ -44,7 +44,7 @@ const oldDoBlockClick = Blockly.Gesture.prototype.doBlockClick_;
  * @override
  */
 Blockly.Gesture.prototype.doBlockClick_ = function(e) {
-  oldDoBlockClick.bind(this)(e);
+  oldDoBlockClick.call(this, e);
   if (!this.targetBlock_.isInFlyout && this.mostRecentEvent_.shiftKey &&
       this.targetBlock_.workspace.keyboardAccessibilityMode) {
     this.creatorWorkspace_.getCursor().setCurNode(
