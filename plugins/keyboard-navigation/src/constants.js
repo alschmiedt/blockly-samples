@@ -50,13 +50,14 @@ export const SHORTCUT_NAMES = {
 };
 
 /**
- * Types of possible messages passed into the logginCallback in Navigation.
+ * Types of possible messages passed into the loggingCallback in the Navigation
+ * class.
  * @enum {string}
  * @const
  * @public
  */
-export const LOGGING_CALLBACK = {
+export const LOGGING_MSG_TYPE = {
   ERROR: 'error',
   WARN: 'warn',
-  LOG: 'log'
+  LOG: 'log',
 };

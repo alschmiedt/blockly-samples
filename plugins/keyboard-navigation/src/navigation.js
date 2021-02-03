@@ -36,7 +36,7 @@ export class Navigation {
      * An optional method that allows a developer to customize how to handle
      * logs, warnings, and errors. The first argument is one of 'log', 'warn',
      * or 'error'. The second argument is the message.
-     * @type {?function(string, string)}
+     * @type {?function(Constants.LOGGING_MSG_TYPE, string)}
      * @public
      */
     this.loggingCallback = null;
@@ -1011,7 +1011,7 @@ export class Navigation {
    */
   log(msg) {
     if (this.loggingCallback) {
-      this.loggingCallback(Constants.LOGGING_CALLBACK.LOG, msg);
+      this.loggingCallback(Constants.LOGGING_MSG_TYPE.LOG, msg);
     } else {
       console.log(msg);
     }
@@ -1025,7 +1025,7 @@ export class Navigation {
    */
   warn(msg) {
     if (this.loggingCallback) {
-      this.loggingCallback(Constants.LOGGING_CALLBACK.WARN, msg);
+      this.loggingCallback(Constants.LOGGING_MSG_TYPE.WARN, msg);
     } else {
       console.warn(msg);
     }
@@ -1039,7 +1039,7 @@ export class Navigation {
    */
   error(msg) {
     if (this.loggingCallback) {
-      this.loggingCallback(Constants.LOGGING_CALLBACK.ERROR, msg);
+      this.loggingCallback(Constants.LOGGING_MSG_TYPE.ERROR, msg);
     } else {
       console.error(msg);
     }
