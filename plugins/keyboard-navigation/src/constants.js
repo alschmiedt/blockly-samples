@@ -48,3 +48,15 @@ export const SHORTCUT_NAMES = {
   MOVE_WS_CURSOR_LEFT: 'workspace_left',
   MOVE_WS_CURSOR_RIGHT: 'workspace_right',
 };
+
+/**
+ * Types of possible messages passed into the logginCallback in Navigation.
+ * @enum {string}
+ * @const
+ * @public
+ */
+export const LOGGING_CALLBACK = {
+  ERROR: 'error',
+  WARN: 'warn',
+  LOG: 'log'
+};

@@ -1011,7 +1011,7 @@ export class Navigation {
    */
   log(msg) {
     if (this.loggingCallback) {
-      this.loggingCallback('log', msg);
+      this.loggingCallback(Constants.LOGGING_CALLBACK.LOG, msg);
     } else {
       console.log(msg);
     }
@@ -1025,7 +1025,7 @@ export class Navigation {
    */
   warn(msg) {
     if (this.loggingCallback) {
-      this.loggingCallback('warn', msg);
+      this.loggingCallback(Constants.LOGGING_CALLBACK.WARN, msg);
     } else {
       console.warn(msg);
     }
@@ -1039,7 +1039,7 @@ export class Navigation {
    */
   error(msg) {
     if (this.loggingCallback) {
-      this.loggingCallback('error', msg);
+      this.loggingCallback(Constants.LOGGING_CALLBACK.ERROR, msg);
     } else {
       console.error(msg);
     }
