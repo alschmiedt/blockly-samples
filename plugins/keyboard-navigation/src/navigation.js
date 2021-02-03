@@ -12,9 +12,7 @@
 
 import * as Blockly from 'blockly/core';
 import * as Constants from './constants';
-import {
-  registrationName as cursorRegistrationName,
-  registrationType as cursorRegistrationType} from './flyout_cursor';
+import {registrationName as cursorRegistrationName, registrationType as cursorRegistrationType} from './flyout_cursor';
 
 /**
  * Class that holds all methods necessary for keyboard navigation to work.
@@ -57,7 +55,8 @@ export class Navigation {
 
     /**
      * The default coordinate to use when focusing on the workspace and no
-     * blocks are present.
+     * blocks are present. In pixel coordinates, but will be converted to
+     * workspace coordinates when used to position the cursor.
      * @type {!Blockly.utils.Coordinate}
      * @public
      */
@@ -65,7 +64,8 @@ export class Navigation {
 
     /**
      * The default coordinate to use when moving the cursor to the workspace
-     * after a block has been deleted.
+     * after a block has been deleted. In pixel coordinates, but will be
+     * converted to workspace coordinates when used to position the cursor.
      * @type {!Blockly.utils.Coordinate}
      * @public
      */
@@ -348,9 +348,13 @@ export class Navigation {
 
     const curNode = cursor.getCurNode();
     const sourceBlock = curNode.getSourceBlock();
+    const scale = workspace.scale;
+    const wsCoordinate = new Blockly.utils.Coordinate(
+        this.WS_COORDINATE_ON_DELETE.x / scale,
+        this.WS_COORDINATE_ON_DELETE.y / scale);
     if (sourceBlock.id === deletedBlockId || ids.indexOf(sourceBlock.id) > -1) {
       cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(
-          workspace, this.WS_COORDINATE_ON_DELETE));
+          workspace, wsCoordinate));
     }
   }
 
@@ -493,12 +497,14 @@ export class Navigation {
   setCursorOnWorkspaceFocus(workspace) {
     const topBlocks = workspace.getTopBlocks(true);
     const cursor = workspace.getCursor();
-
+    const wsCoordinates = new Blockly.utils.Coordinate(
+        this.DEFAULT_WS_COORDINATE.x / workspace.scale,
+        this.DEFAULT_WS_COORDINATE.y / workspace.scale);
     if (topBlocks.length > 0) {
       cursor.setCurNode(Blockly.ASTNode.createTopNode(topBlocks[0]));
     } else {
-      const wsNode = Blockly.ASTNode.createWorkspaceNode(
-          workspace, this.DEFAULT_WS_COORDINATE);
+      const wsNode =
+          Blockly.ASTNode.createWorkspaceNode(workspace, wsCoordinates);
       cursor.setCurNode(wsNode);
     }
   }
@@ -534,7 +540,7 @@ export class Navigation {
     }
     const markerNode = this.getMarker(workspace).getCurNode();
     if (!this.modify(
-        workspace, markerNode, Blockly.ASTNode.createBlockNode(newBlock))) {
+            workspace, markerNode, Blockly.ASTNode.createBlockNode(newBlock))) {
       this.warn(
           'Something went wrong while inserting a block from the flyout.');
     }
@@ -561,7 +567,7 @@ export class Navigation {
     }
 
     const curBlock = /** @type {!Blockly.BlockSvg} */ (
-      this.getFlyoutCursor(workspace).getCurNode().getLocation());
+        this.getFlyoutCursor(workspace).getCurNode().getLocation());
     if (!curBlock.isEnabled()) {
       this.warn('Can\'t insert a disabled block.');
       return null;
@@ -631,17 +637,17 @@ export class Navigation {
     const markerLoc = markerNode.getLocation();
     if (markerNode.isConnection() && cursorNode.isConnection()) {
       const cursorConnection =
-      /** @type {!Blockly.RenderedConnection} */ (cursorLoc);
+          /** @type {!Blockly.RenderedConnection} */ (cursorLoc);
       const markerConnection =
-      /** @type {!Blockly.RenderedConnection} */ (markerLoc);
+          /** @type {!Blockly.RenderedConnection} */ (markerLoc);
       return this.connect(cursorConnection, markerConnection);
     } else if (
-      markerNode.isConnection() &&
+        markerNode.isConnection() &&
         (cursorType == Blockly.ASTNode.types.BLOCK ||
          cursorType == Blockly.ASTNode.types.STACK)) {
       const cursorBlock = /** @type {!Blockly.BlockSvg} */ (cursorLoc);
       const markerConnection =
-      /** @type {!Blockly.RenderedConnection} */ (markerLoc);
+          /** @type {!Blockly.RenderedConnection} */ (markerLoc);
       return this.insertBlock(cursorBlock, markerConnection);
     } else if (markerType == Blockly.ASTNode.types.WORKSPACE) {
       const block = cursorNode ? cursorNode.getSourceBlock() : null;
@@ -773,7 +779,7 @@ export class Navigation {
       return true;
       // Try swapping the inferior and superior connections on the blocks.
     } else if (
-      movingSuperior && destInferior &&
+        movingSuperior && destInferior &&
         this.moveAndConnect(movingSuperior, destInferior)) {
       return true;
     } else if (this.moveAndConnect(movingConnection, destConnection)) {
@@ -890,7 +896,7 @@ export class Navigation {
       case Blockly.OUTPUT_VALUE:
         for (let i = 0; i < block.inputList.length; i++) {
           const inputConnection = /** @type {Blockly.RenderedConnection} */ (
-            block.inputList[i].connection);
+              block.inputList[i].connection);
           if (inputConnection && inputConnection.type === Blockly.INPUT_VALUE &&
               this.connect(inputConnection, destConnection)) {
             return true;
@@ -923,7 +929,7 @@ export class Navigation {
       return;
     }
     const curConnection =
-    /** @type {!Blockly.RenderedConnection} */ (curNode.getLocation());
+        /** @type {!Blockly.RenderedConnection} */ (curNode.getLocation());
     if (!curConnection.isConnected()) {
       this.log('Cannot disconnect unconnected connection');
       return;
@@ -1082,7 +1088,7 @@ export class Navigation {
     if (nodeType == Blockly.ASTNode.types.FIELD) {
       (/** @type {!Blockly.Field} */ (curNode.getLocation())).showEditor();
     } else if (
-      curNode.isConnection() || nodeType == Blockly.ASTNode.types.WORKSPACE) {
+        curNode.isConnection() || nodeType == Blockly.ASTNode.types.WORKSPACE) {
       this.markAtCursor(workspace);
     } else if (nodeType == Blockly.ASTNode.types.BLOCK) {
       this.warn('Cannot mark a block.');
@@ -1116,7 +1122,7 @@ export class Navigation {
         workspace.isCapacityAvailable(Blockly.clipboardTypeCounts_)) {
       Blockly.Events.setGroup(true);
       const block = /** @type {Blockly.BlockSvg} */ (
-        Blockly.Xml.domToBlock(Blockly.clipboardXml_, workspace));
+          Blockly.Xml.domToBlock(Blockly.clipboardXml_, workspace));
       if (block) {
         this.insertPastedBlock(workspace, block);
         if (Blockly.Events.isEnabled() && !block.isShadow()) {
