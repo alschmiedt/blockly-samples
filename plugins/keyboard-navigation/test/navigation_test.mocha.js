@@ -698,7 +698,7 @@ suite('Navigation', function() {
       const sourceNode =
           Blockly.ASTNode.createConnectionNode(this.basicBlock2.nextConnection);
 
-      this.navigation.modify(this.workspace, targetNode, sourceNode);
+      this.navigation.tryToConnect(this.workspace, targetNode, sourceNode);
       const insertedBlock = this.basicBlock.previousConnection.targetBlock();
 
       chai.assert.isNotNull(insertedBlock);

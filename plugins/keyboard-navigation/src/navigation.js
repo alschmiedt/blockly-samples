@@ -539,7 +539,7 @@ export class Navigation {
       return;
     }
     const markerNode = this.getMarker(workspace).getCurNode();
-    if (!this.modify(
+    if (!this.tryToConnect(
             workspace, markerNode, Blockly.ASTNode.createBlockNode(newBlock))) {
       this.warn(
           'Something went wrong while inserting a block from the flyout.');
@@ -611,7 +611,7 @@ export class Navigation {
     const cursorNode = workspace.getCursor().getCurNode();
 
     if (markerNode && cursorNode) {
-      return this.modify(workspace, markerNode, cursorNode);
+      return this.tryToConnect(workspace, markerNode, cursorNode);
     }
     return false;
   }
@@ -625,8 +625,8 @@ export class Navigation {
    *     wrong.
    * @protected
    */
-  modify(workspace, markerNode, cursorNode) {
-    if (!this.modifyWarn(markerNode, cursorNode)) {
+  tryToConnect(workspace, markerNode, cursorNode) {
+    if (!this.canConnect(markerNode, cursorNode)) {
       return false;
     }
 
@@ -666,7 +666,7 @@ export class Navigation {
    *     otherwise.
    * @protected
    */
-  modifyWarn(markerNode, cursorNode) {
+  canConnect(markerNode, cursorNode) {
     if (!markerNode) {
       this.warn('Cannot insert with no marked node.');
       return false;
@@ -1148,7 +1148,7 @@ export class Navigation {
     let isHandled = false;
     const markedNode = workspace.getMarker(this.MARKER_NAME).getCurNode();
     if (markedNode) {
-      isHandled = this.modify(
+      isHandled = this.tryToConnect(
           workspace, markedNode, Blockly.ASTNode.createBlockNode(block));
     }
     return isHandled;
