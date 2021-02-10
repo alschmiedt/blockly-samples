@@ -145,7 +145,7 @@ export class Navigation {
   /**
    * Sets the state for the given workspace.
    * @param {!Blockly.WorkspaceSvg} workspace The workspace to set the state on.
-   * @param {Constants.STATE} state The navigation state.
+   * @param {!Constants.STATE} state The navigation state.
    * @protected
    */
   setState(workspace, state) {
@@ -155,7 +155,7 @@ export class Navigation {
   /**
    * Gets the navigation state of the current workspace.
    * @param {!Blockly.WorkspaceSvg} workspace The workspace to get the state of.
-   * @return {Constants.STATE} The sate of the given workspace.
+   * @return {!Constants.STATE} The sate of the given workspace.
    * @package
    */
   getState(workspace) {
@@ -165,7 +165,7 @@ export class Navigation {
    * Gets the marker created for keyboard navigation.
    * @param {!Blockly.WorkspaceSvg} workspace The workspace to get the marker
    *     from.
-   * @return {Blockly.Marker} The marker created for keyboard navigation.
+   * @return {?Blockly.Marker} The marker created for keyboard navigation.
    * @protected
    */
   getMarker(workspace) {
@@ -260,7 +260,7 @@ export class Navigation {
    * Moves the cursor to the workspace if a block has been dragged from a simple
    * toolbox. For a category toolbox this is handled in
    * handleToolboxCategoryClick_.
-   * @param {Blockly.WorkspaceSvg} workspace The workspace the cursor belongs
+   * @param {!Blockly.WorkspaceSvg} workspace The workspace the cursor belongs
    *     to.
    * @param {!Blockly.Events.Abstract} e The Blockly event to process.
    * @protected
@@ -275,7 +275,7 @@ export class Navigation {
   /**
    * Moves the cursor to the block level when the block the cursor is on
    * mutates.
-   * @param {Blockly.WorkspaceSvg} workspace The workspace the cursor belongs
+   * @param {!Blockly.WorkspaceSvg} workspace The workspace the cursor belongs
    *     to.
    * @param {!Blockly.Events.BlockChange} e The Blockly event to process.
    * @protected
@@ -294,7 +294,7 @@ export class Navigation {
 
   /**
    * Moves the cursor to the workspace when a user clicks on the workspace.
-   * @param {Blockly.WorkspaceSvg} workspace The workspace the cursor belongs
+   * @param {!Blockly.WorkspaceSvg} workspace The workspace the cursor belongs
    *     to.
    * @param {!Blockly.Events.Click} e The Blockly event to process.
    * @protected
@@ -353,17 +353,17 @@ export class Navigation {
         this.WS_COORDINATE_ON_DELETE.x / scale,
         this.WS_COORDINATE_ON_DELETE.y / scale);
     if (sourceBlock.id === deletedBlockId || ids.indexOf(sourceBlock.id) > -1) {
-      cursor.setCurNode(Blockly.ASTNode.createWorkspaceNode(
-          workspace, wsCoordinate));
+      cursor.setCurNode(
+          Blockly.ASTNode.createWorkspaceNode(workspace, wsCoordinate));
     }
   }
 
   /**
    * Handles when a user clicks on a block in the flyout by moving the cursor
    * to that stack of blocks and setting the state of navigation to the flyout.
-   * @param {Blockly.WorkspaceSvg} mainWorkspace The workspace the user clicked
+   * @param {!Blockly.WorkspaceSvg} mainWorkspace The workspace the user clicked
    *     on.
-   * @param {Blockly.BlockSvg} block The block the user clicked on.
+   * @param {!Blockly.BlockSvg} block The block the user clicked on.
    * @protected
    */
   handleBlockClickInFlyout(mainWorkspace, block) {
@@ -511,17 +511,17 @@ export class Navigation {
 
   /**
    * Gets the cursor on the flyout's workspace.
-   * @return {Blockly.FlyoutCursor} The flyout's cursor or null if no flyout
-   *     exists.
    * @param {!Blockly.WorkspaceSvg} workspace The main workspace the flyout is
    *     on.
+   * @return {?Blockly.FlyoutCursor} The flyout's cursor or null if no flyout
+   *     exists.
    * @protected
    */
   getFlyoutCursor(workspace) {
     const flyout = workspace.getFlyout();
     const cursor = flyout ? flyout.getWorkspace().getCursor() : null;
 
-    return /** @type {Blockly.FlyoutCursor} */ (cursor);
+    return /** @type {?Blockly.FlyoutCursor} */ (cursor);
   }
 
   /**
@@ -705,7 +705,7 @@ export class Navigation {
   /**
    * Disconnect the block from its parent and move to the position of the
    * workspace node.
-   * @param {Blockly.BlockSvg} block The block to be moved to the workspace.
+   * @param {?Blockly.BlockSvg} block The block to be moved to the workspace.
    * @param {!Blockly.ASTNode} wsNode The workspace node holding the position
    *     the block will be moved to.
    * @return {boolean} True if the block can be moved to the workspace,
@@ -739,12 +739,19 @@ export class Navigation {
   disconnectChild(movingConnection, destConnection) {
     const movingBlock = movingConnection.getSourceBlock();
     const destBlock = destConnection.getSourceBlock();
+    let inferiorConnection;
 
     if (movingBlock.getRootBlock() === destBlock.getRootBlock()) {
       if (movingBlock.getDescendants(false).indexOf(destBlock) > -1) {
-        this.getInferiorConnection(destConnection).disconnect();
+        inferiorConnection = this.getInferiorConnection(destConnection);
+        if (inferiorConnection) {
+          inferiorConnection.disconnect();
+        }
       } else {
-        this.getInferiorConnection(movingConnection).disconnect();
+        inferiorConnection = this.getInferiorConnection(movingConnection);
+        if (inferiorConnection) {
+          inferiorConnection.disconnect();
+        }
       }
     }
   }
@@ -755,9 +762,9 @@ export class Navigation {
    * If the given connections are not compatible try finding compatible
    * connections on the source blocks of the given connections.
    *
-   * @param {Blockly.RenderedConnection} movingConnection The connection that is
-   *     being moved.
-   * @param {Blockly.RenderedConnection} destConnection The connection to be
+   * @param {?Blockly.RenderedConnection} movingConnection The connection that
+   *     is being moved.
+   * @param {?Blockly.RenderedConnection} destConnection The connection to be
    *     moved to.
    * @return {boolean} True if the two connections or their target connections
    *     were connected, false otherwise.
@@ -798,9 +805,9 @@ export class Navigation {
   /**
    * If the given connection is superior find the inferior connection on the
    * source block.
-   * @param {Blockly.RenderedConnection} connection The connection trying to be
+   * @param {?Blockly.RenderedConnection} connection The connection trying to be
    *     connected.
-   * @return {Blockly.RenderedConnection} The inferior connection or null if
+   * @return {?Blockly.RenderedConnection} The inferior connection or null if
    *     none exists.
    * @protected
    */
@@ -820,9 +827,9 @@ export class Navigation {
   /**
    * If the given connection is inferior tries to find a superior connection to
    * connect to.
-   * @param {Blockly.RenderedConnection} connection The connection trying to be
+   * @param {?Blockly.RenderedConnection} connection The connection trying to be
    *     connected.
-   * @return {Blockly.RenderedConnection} The superior connection or null if
+   * @return {?Blockly.RenderedConnection} The superior connection or null if
    *     none exists.
    * @protected
    */
@@ -837,9 +844,9 @@ export class Navigation {
 
   /**
    * Moves the moving connection to the target connection and connects them.
-   * @param {Blockly.RenderedConnection} movingConnection The connection that is
-   *     being moved.
-   * @param {Blockly.RenderedConnection} destConnection The connection to be
+   * @param {?Blockly.RenderedConnection} movingConnection The connection that
+   *     is being moved.
+   * @param {?Blockly.RenderedConnection} destConnection The connection to be
    *     moved to.
    * @return {boolean} True if the connections were connected, false otherwise.
    * @protected
