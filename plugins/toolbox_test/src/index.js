@@ -55,12 +55,36 @@ export class HeavyTextCategory extends Blockly.ToolboxCategory {
   }
 
   createExplanationDom_() {
-    const nameDom = document.createElement('div');
+    const nameDom = document.createElement('p');
     nameDom.className = 'explanationClass';
     nameDom.textContent = this.toolboxItemDef_['explanation'];
     return nameDom;
   }
 }
+/**
+ * CSS for Toolbox.  See css.js for use.
+ */
+ Blockly.Css.register([
+`
+    .blocklyTreeRow {
+      height: auto;
+      margin-left: 1.5em;
+      max-width: 200px;
+      white-space: normal;
+      margin-top: 1em;
+    }
+
+    .blocklyTreeLabel {
+      font-weight: 500;
+    }
+
+    .explanationClass {
+      overflow-wrap: anywhere;
+      margin: 0px;
+      font-size: .85em;
+    }
+`]);
+
 
 Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM,
     Blockly.ToolboxCategory.registrationName, HeavyTextCategory, true);

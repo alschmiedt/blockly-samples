@@ -9,8 +9,9 @@
  */
 
 import * as Blockly from 'blockly';
-import {toolboxCategories, createPlayground} from '@blockly/dev-tools';
+import {createPlayground} from '@blockly/dev-tools';
 import '../src/index';
+import '../src/collapsible_category';
 
 /**
  * Create a workspace.
@@ -30,13 +31,22 @@ document.addEventListener('DOMContentLoaded', function() {
       'contents': [
         {
           'kind': 'category',
-          'name': 'List',
-          'explanation': 'All the blocks that have to do with ...',
-        },
-        {
-          'kind': 'category',
-          'name': 'List',
-          'explanation': 'All the blocks that have to do with ...',
+          'name': 'Parent Category',
+          'cssConfig': {
+            'icon': 'materials-icon material-icons-outlined',
+          },
+          'contents': [
+            {
+              'kind': 'category',
+              'name': 'List',
+              'explanation': 'All the blocks that have to do with ...',
+            },
+            {
+              'kind': 'category',
+              'name': 'List',
+              'explanation': 'All the blocks that have to do with ...',
+            },
+          ],
         },
       ],
     },
