@@ -60,6 +60,24 @@ export class HeavyTextCategory extends Blockly.ToolboxCategory {
     nameDom.textContent = this.toolboxItemDef_['explanation'];
     return nameDom;
   }
+
+  /** @override */
+  addColourBorder_ (colour) {
+
+  }
+
+  /** @override */
+  setSelected(isSelected) {
+    if (isSelected) {
+      this.rowDiv_.style.backgroundColor = 'gray';
+      Blockly.utils.dom.addClass(this.rowDiv_, this.cssConfig_['selected']);
+    } else {
+      this.rowDiv_.style.backgroundColor = '';
+      Blockly.utils.dom.removeClass(this.rowDiv_, this.cssConfig_['selected']);
+    }
+    Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
+        Blockly.utils.aria.State.SELECTED, isSelected);
+  }
 }
 /**
  * CSS for Toolbox.  See css.js for use.

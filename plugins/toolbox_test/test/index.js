@@ -12,6 +12,7 @@ import * as Blockly from 'blockly';
 import {createPlayground} from '@blockly/dev-tools';
 import '../src/index';
 import '../src/collapsible_category';
+import '../src/search_item';
 
 /**
  * Create a workspace.
@@ -31,9 +32,21 @@ document.addEventListener('DOMContentLoaded', function() {
       'contents': [
         {
           'kind': 'category',
+          'name': 'Search',
+          'cssConfig': {
+            'icon': 'customIcon material-icons material-icons-outlined',
+          },
+          'contents': [
+            {
+              'kind': 'searchItem',
+            },
+          ],
+        },
+        {
+          'kind': 'category',
           'name': 'Parent Category',
           'cssConfig': {
-            'icon': 'materials-icon material-icons-outlined',
+            'icon': 'customIcon material-icons material-icons-outlined',
           },
           'contents': [
             {

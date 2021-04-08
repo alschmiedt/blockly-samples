@@ -21,17 +21,28 @@ export class HeavyTextCategory extends Blockly.CollapsibleToolboxCategory {
     if (!iconDiv) {
       return;
     }
-    iconDiv.textContent = '&#xe5cf';
+    iconDiv.innerHTML = '&#xe5cf;';
   }
 
   closeIcon_(iconDiv) {
     if (!iconDiv) {
       return;
     }
-    iconDiv.textContent = '&#xe5ce';
+    iconDiv.innerHTML = '&#xe5ce;';
+  }
+  /** @override */
+  setSelected(isSelected) {
+    if (isSelected) {
+      this.rowDiv_.style.backgroundColor = 'gray';
+      Blockly.utils.dom.addClass(this.rowDiv_, this.cssConfig_['selected']);
+    } else {
+      this.rowDiv_.style.backgroundColor = '';
+      Blockly.utils.dom.removeClass(this.rowDiv_, this.cssConfig_['selected']);
+    }
+    Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
+        Blockly.utils.aria.State.SELECTED, isSelected);
   }
 }
-
 
 
 Blockly.Css.register([`
