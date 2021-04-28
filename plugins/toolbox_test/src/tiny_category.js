@@ -14,7 +14,7 @@ import * as Blockly from 'blockly';
 /**
  * Plugin description.
  */
-export class HeavyTextCategory extends Blockly.ToolboxCategory {
+export class TinyCategory extends Blockly.ToolboxCategory {
   /**
    * Constructor for ...
    * @param {!Blockly.WorkspaceSvg} workspace The workspace that the plugin will
@@ -27,10 +27,12 @@ export class HeavyTextCategory extends Blockly.ToolboxCategory {
   createDom_() {
     this.htmlDiv_ = this.createContainer_();
     Blockly.utils.aria.setRole(this.htmlDiv_, Blockly.utils.aria.Role.TREEITEM);
-    Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
-        Blockly.utils.aria.State.SELECTED,false);
-    Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
-        Blockly.utils.aria.State.LEVEL, this.level_);
+    Blockly.utils.aria.setState(
+        /** @type {!Element} */ (this.htmlDiv_),
+        Blockly.utils.aria.State.SELECTED, false);
+    Blockly.utils.aria.setState(
+        /** @type {!Element} */ (this.htmlDiv_), Blockly.utils.aria.State.LEVEL,
+        this.level_);
 
     this.rowDiv_ = this.createRowContainer_();
     this.rowDiv_.style.pointerEvents = 'auto';
@@ -43,10 +45,8 @@ export class HeavyTextCategory extends Blockly.ToolboxCategory {
     this.labelDom_ = this.createLabelDom_(this.name_);
     this.rowContents_.appendChild(this.labelDom_);
 
-    this.explanationDom_ = this.createExplanationDom_();
-    this.rowContents_.appendChild(this.explanationDom_);
-
-    Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
+    Blockly.utils.aria.setState(
+        /** @type {!Element} */ (this.htmlDiv_),
         Blockly.utils.aria.State.LABELLEDBY, this.labelDom_.getAttribute('id'));
 
     this.addColourBorder_(this.colour_);
@@ -54,17 +54,8 @@ export class HeavyTextCategory extends Blockly.ToolboxCategory {
     return this.htmlDiv_;
   }
 
-  createExplanationDom_() {
-    const nameDom = document.createElement('p');
-    nameDom.className = 'explanationClass';
-    nameDom.textContent = this.toolboxItemDef_['explanation'];
-    return nameDom;
-  }
-
   /** @override */
-  addColourBorder_ (colour) {
-
-  }
+  addColourBorder_(colour) {}
 
   /** @override */
   setSelected(isSelected) {
@@ -77,7 +68,8 @@ export class HeavyTextCategory extends Blockly.ToolboxCategory {
       this.explanationDom_.style.color = 'black';
       Blockly.utils.dom.removeClass(this.rowDiv_, this.cssConfig_['selected']);
     }
-    Blockly.utils.aria.setState(/** @type {!Element} */ (this.htmlDiv_),
+    Blockly.utils.aria.setState(
+        /** @type {!Element} */ (this.htmlDiv_),
         Blockly.utils.aria.State.SELECTED, isSelected);
   }
 }
@@ -85,27 +77,22 @@ Blockly.ToolboxCategory.nestedPadding = 0;
 /**
  * CSS for Toolbox.  See css.js for use.
  */
- Blockly.Css.register([
-`
-    .blocklyTreeRow {
-      height: auto;
-      margin-left: 1.5em;
-      max-width: 200px;
-      white-space: normal;
-      margin-top: 1em;
-    }
-
-    .blocklyTreeLabel {
-      font-weight: 500;
-    }
-
-    .explanationClass {
-      overflow-wrap: anywhere;
-      margin: 0px;
-      font-size: .85em;
-    }
-`]);
-
-
-Blockly.registry.register(Blockly.registry.Type.TOOLBOX_ITEM,
-    Blockly.ToolboxCategory.registrationName, HeavyTextCategory, true);
+Blockly.Css.register([`
+     .blocklyTreeRow {
+       height: auto;
+       margin-left: 1.5em;
+       max-width: 200px;
+       white-space: normal;
+       margin-top: 1em;
+     }
+ 
+     .blocklyTreeLabel {
+       font-weight: 500;
+     }
+ 
+     .explanationClass {
+       overflow-wrap: anywhere;
+       margin: 0px;
+       font-size: .85em;
+     }
+ `]);
