@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
           'kind': 'collapseIcon',
         },
         {
+          'kind': 'searchItem',
+        },
+        {
           'kind': 'category',
           'categorystyle': 'logic_category',
           'name': 'Parent Category',
@@ -51,6 +54,16 @@ document.addEventListener('DOMContentLoaded', function() {
               'kind': 'category',
               'name': 'List',
               'explanation': 'All the blocks that have to do with ...',
+              'contents': [
+                {
+                  'kind': 'block',
+                  'type': 'text',
+                },
+                {
+                  'kind': 'block',
+                  'type': 'controls_ifelse',
+                },
+              ],
             },
             {
               'kind': 'category',

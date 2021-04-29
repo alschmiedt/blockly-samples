@@ -24,7 +24,12 @@ export class CollapseIcon extends Blockly.ToolboxItem {
 
   getDiv() {
     this.iconDiv = document.createElement('div');
-    this.iconDiv.innerHTML = '&#xe5e1;';
+    if (this.parentToolbox_.isClosed) {
+      this.iconDiv.innerHTML = '&#xe5e0;';
+    } else {
+      this.iconDiv.innerHTML = '&#xe5e1;';
+    }
+
     this.iconDiv.classList.add('material-icons');
     this.iconDiv.style.fontSize = '1em';
     return this.iconDiv;
@@ -52,10 +57,10 @@ export class CollapseIcon extends Blockly.ToolboxItem {
     console.log('here');
     if (this.parentToolbox_.isClosed) {
       this.parentToolbox_.isClosed = false;
-      this.collapseToolbox();
+      this.openToolbox();
     } else {
       this.parentToolbox_.isClosed = true;
-      this.openToolbox();
+      this.collapseToolbox();
     }
   }
 
@@ -74,7 +79,6 @@ export class CollapseIcon extends Blockly.ToolboxItem {
         true);
     const workspace = Blockly.getMainWorkspace();
     workspace.updateToolbox(workspace.options.languageTree);
-    this.iconDiv.innerHTML = '&#xe5e0;';
   }
 
   openToolbox() {
@@ -90,7 +94,6 @@ export class CollapseIcon extends Blockly.ToolboxItem {
         HeavyTextCollapsibleCategory, true);
     const workspace = Blockly.getMainWorkspace();
     workspace.updateToolbox(workspace.options.languageTree);
-    this.iconDiv.innerHTML = '&#xe5e1;';
   }
 }
 

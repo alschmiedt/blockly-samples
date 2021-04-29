@@ -61,11 +61,9 @@ export class TinyCategory extends Blockly.ToolboxCategory {
   setSelected(isSelected) {
     if (isSelected) {
       this.htmlDiv_.style.backgroundColor = 'gray';
-      this.explanationDom_.style.color = 'white';
       Blockly.utils.dom.addClass(this.rowDiv_, this.cssConfig_['selected']);
     } else {
       this.htmlDiv_.style.backgroundColor = '';
-      this.explanationDom_.style.color = 'black';
       Blockly.utils.dom.removeClass(this.rowDiv_, this.cssConfig_['selected']);
     }
     Blockly.utils.aria.setState(
