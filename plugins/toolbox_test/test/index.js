@@ -9,8 +9,10 @@
  */
 
 import '../src/index';
-import '../src/collapsible_category';
 import '../src/search_item';
+import '../src/collapse_item';
+import '../src/collapsible_category';
+
 
 import {createPlayground} from '@blockly/dev-tools';
 import * as Blockly from 'blockly';
@@ -25,35 +27,18 @@ import {TinyCollapsible} from '../src/tiny_collapsible_category';
  * @return {!Blockly.WorkspaceSvg} The created workspace.
  */
 function createWorkspace(blocklyDiv, options) {
-  // options['theme'] = Blockly.Theme.defineTheme('toolboxDemo', {
-  //   base: 'classic',
-  //   componentStyles: {
-  //     'toolboxBackgroundColour': 'darkgray',
-  //     'toolboxForegroundColour': 'white',
-  //   },
-  // });
   const workspace = Blockly.inject(blocklyDiv, options);
   return workspace;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('button').addEventListener('click', function() {
-    Blockly.registry.register(
-        Blockly.registry.Type.TOOLBOX_ITEM,
-        Blockly.ToolboxCategory.registrationName, TinyCategory, true);
-
-    Blockly.registry.register(
-        Blockly.registry.Type.TOOLBOX_ITEM,
-        Blockly.CollapsibleToolboxCategory.registrationName, TinyCollapsible,
-        true);
-    const workspace = Blockly.getMainWorkspace();
-    workspace.updateToolbox(workspace.options.languageTree);
-  });
-
   const defaultOptions = {
     toolbox: {
       'kind': 'categoryToolbox',
       'contents': [
+        {
+          'kind': 'collapseIcon',
+        },
         {
           'kind': 'category',
           'categorystyle': 'logic_category',

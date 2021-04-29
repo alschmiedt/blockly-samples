@@ -12,7 +12,7 @@
 import * as Blockly from 'blockly';
 
 
-export class HeavyTextCategory extends Blockly.CollapsibleToolboxCategory {
+export class HeavyTextCollapsibleCategory extends Blockly.CollapsibleToolboxCategory {
   constructor(categoryDef, toolbox, opt_parent) {
     super(categoryDef, toolbox, opt_parent);
   }
@@ -65,5 +65,5 @@ Blockly.Css.register([`
 
 Blockly.registry.register(
     Blockly.registry.Type.TOOLBOX_ITEM,
-    Blockly.CollapsibleToolboxCategory.registrationName, HeavyTextCategory,
+    Blockly.CollapsibleToolboxCategory.registrationName, HeavyTextCollapsibleCategory,
     true);
