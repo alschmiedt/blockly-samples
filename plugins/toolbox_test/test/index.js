@@ -11,14 +11,10 @@
 import '../src/index';
 import '../src/search_item';
 import '../src/collapse_item';
-import '../src/collapsible_category';
-
 
 import {createPlayground} from '@blockly/dev-tools';
 import * as Blockly from 'blockly';
 
-import {TinyCategory} from '../src/tiny_category';
-import {TinyCollapsible} from '../src/tiny_collapsible_category';
 
 /**
  * Create a workspace.
@@ -44,51 +40,27 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         {
           'kind': 'category',
-          'categorystyle': 'logic_category',
-          'name': 'Parent Category',
-          'cssConfig': {
-            'icon': 'customIcon material-icons material-icons-outlined',
-          },
+          'name': 'List',
+          'explanation': 'A longer explanation of list blocks.',
           'contents': [
             {
-              'kind': 'category',
-              'name': 'List',
-              'explanation': 'All the blocks that have to do with ...',
-              'contents': [
-                {
-                  'kind': 'block',
-                  'type': 'text',
-                },
-                {
-                  'kind': 'block',
-                  'type': 'controls_ifelse',
-                },
-              ],
+              'kind': 'block',
+              'type': 'controls_ifelse',
             },
             {
-              'kind': 'category',
-              'name': 'List',
-              'explanation': 'All the blocks that have to do with ...',
+              'kind': 'block',
+              'type': 'logic_operation',
             },
           ],
         },
         {
           'kind': 'category',
-          'categorystyle': 'text_category',
-          'name': 'Parent Category',
-          'cssConfig': {
-            'icon': 'customIcon material-icons material-icons-outlined',
-          },
+          'name': 'Loops',
+          'explanation': 'A longer explanation of loop blocks.',
           'contents': [
             {
-              'kind': 'category',
-              'name': 'List',
-              'explanation': 'All the blocks that have to do with ...',
-            },
-            {
-              'kind': 'category',
-              'name': 'List',
-              'explanation': 'All the blocks that have to do with ...',
+              'kind': 'block',
+              'type': 'controls_ifelse',
             },
           ],
         },
